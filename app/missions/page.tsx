@@ -1,0 +1,313 @@
+/* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
+import type { Metadata } from "next";
+import { Icon } from "@/components/icon";
+import { Nav } from "@/components/nav";
+import { Footer } from "@/components/footer";
+import { PageHero } from "@/components/page-hero";
+import { FadeUp, ImageReveal, Stagger, StaggerItem } from "@/components/anim";
+
+export const metadata: Metadata = {
+  title: "Nos missions · Le Combat d'Alya",
+  description:
+    "Soins, soutien aux familles, sensibilisation, équipement : nos quatre piliers d'action.",
+};
+
+const HERO_IMAGE =
+  "https://static.wixstatic.com/media/26a6fa_b3eba259fc2e41c097fad060b3738366~mv2.jpg/v1/fill/w_1066,h_740,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/26a6fa_b3eba259fc2e41c097fad060b3738366~mv2.jpg";
+
+const MISSIONS = [
+  {
+    number: "01",
+    eyebrow: "Mission principale",
+    title: "Soins & Thérapies",
+    italicWord: "thérapies",
+    tagline:
+      "Financer les meilleurs traitements, sans frontière géographique ni financière.",
+    description:
+      "Nous prenons en charge les protocoles innovants, les thérapies de pointe et les programmes de rééducation à l'international. Notre rôle : permettre à Alya — et aux familles que nous accompagnons — d'accéder aux soins que la couverture publique ne couvre pas encore.",
+    programs: [
+      "Programme de rééducation neuromotrice (Barcelone)",
+      "Thérapies par stimulation sensorielle",
+      "Suivi médical pluridisciplinaire",
+      "Bourses de soins pour familles bénéficiaires",
+    ],
+    stats: [
+      { value: "32k€", label: "Investis en 2025" },
+      { value: "12", label: "Programmes financés" },
+      { value: "3", label: "Pays partenaires" },
+    ],
+    icon: "medical_services",
+    gradient: "from-[#4A5C7A] via-[#5B5670] to-[#6D4F60]",
+    bg: "bg-surface-container-low",
+  },
+  {
+    number: "02",
+    eyebrow: "Communauté",
+    title: "Soutien aux Familles",
+    italicWord: "Familles",
+    tagline:
+      "Une famille élargie pour traverser ce que personne ne devrait traverser seul.",
+    description:
+      "Au-delà du financement, nous tissons un réseau de soutien : groupes de parole, accompagnement administratif, mise en relation avec des spécialistes, week-ends de répit pour les aidants. L'humain d'abord.",
+    programs: [
+      "Groupes de parole mensuels (Paris, Lyon, en ligne)",
+      "Cellule d'écoute psychologique gratuite",
+      "Accompagnement administratif MDPH",
+      "Week-ends répit pour aidants familiaux",
+    ],
+    stats: [
+      { value: "850", label: "Familles accompagnées" },
+      { value: "24h", label: "Délai d'écoute moyen" },
+      { value: "4", label: "Antennes en France" },
+    ],
+    icon: "diversity_1",
+    gradient: "from-secondary via-[#cf0e58] to-[#e01e62]",
+    bg: "bg-surface-container-lowest",
+  },
+  {
+    number: "03",
+    eyebrow: "Sensibilisation",
+    title: "Changer les Regards",
+    italicWord: "regards",
+    tagline:
+      "L'éducation comme antidote à l'ignorance et à l'isolement social.",
+    description:
+      "Nous menons des actions de sensibilisation dans les écoles, en entreprise et auprès du grand public. Notre conviction : c'est en racontant ces histoires qu'on déconstruit les préjugés et qu'on rend la société plus accueillante.",
+    programs: [
+      "Interventions en milieu scolaire (CM1 à Terminale)",
+      "Conférences en entreprise sur le handicap invisible",
+      "Campagnes presse et réseaux sociaux",
+      "Festival annuel « Voix d'Alya »",
+    ],
+    stats: [
+      { value: "47", label: "Écoles touchées" },
+      { value: "12k", label: "Personnes sensibilisées" },
+      { value: "8", label: "Médias partenaires" },
+    ],
+    icon: "visibility",
+    gradient: "from-[#a26369] via-[#864b51] to-[#6d363c]",
+    bg: "bg-surface-container",
+  },
+  {
+    number: "04",
+    eyebrow: "Innovation",
+    title: "Équipement & Autonomie",
+    italicWord: "autonomie",
+    tagline:
+      "Accès aux technologies d'assistance qui transforment le quotidien.",
+    description:
+      "Fauteuils multisensoriels, logiciels d'aide à la communication, dispositifs de mobilité : nous finançons les équipements de pointe qui repoussent les limites du possible et redonnent de l'autonomie à chacun.",
+    programs: [
+      "Fauteuil multisensoriel (campagne en cours)",
+      "Tablettes de communication AAC",
+      "Aménagement de domicile",
+      "Aides à la mobilité personnalisées",
+    ],
+    stats: [
+      { value: "27k€", label: "Équipement financé" },
+      { value: "18", label: "Bénéficiaires" },
+      { value: "100%", label: "Sur prescription" },
+    ],
+    icon: "settings_accessibility",
+    gradient: "from-[#5B5670] via-[#6D4F60] to-[#864b51]",
+    bg: "bg-surface-container-high",
+  },
+];
+
+export default function MissionsPage() {
+  return (
+    <>
+      <Nav />
+      <main>
+        <PageHero
+          breadcrumbs={[
+            { label: "Accueil", href: "/" },
+            { label: "Nos missions" },
+          ]}
+          eyebrow="Ce que nous faisons"
+          title={
+            <>
+              Quatre piliers,
+              <br />
+              une <span className="italic">raison d&apos;être</span>.
+            </>
+          }
+          intro="Soins, soutien, sensibilisation, équipement. Chaque mission est pensée comme un levier complémentaire pour transformer le quotidien d'Alya et celui des familles que nous accompagnons."
+        />
+
+        {/* Summary nav */}
+        <section className="px-6 md:px-10 pb-12 md:pb-20">
+          <Stagger
+            staggerDelay={0.08}
+            className="max-w-screen-2xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5"
+          >
+            {MISSIONS.map((m) => (
+              <StaggerItem key={m.number}>
+                <a
+                  href={`#mission-${m.number}`}
+                  className="group p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] bg-surface-container-low hover:bg-surface-container-high transition-colors flex flex-col gap-3 md:gap-4 h-full"
+                >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-secondary font-semibold">
+                    {m.number}
+                  </span>
+                  <Icon
+                    name={m.icon}
+                    className="text-primary text-2xl md:text-3xl opacity-60 group-hover:opacity-100 transition-opacity"
+                  />
+                </div>
+                  <h3 className="font-serif text-primary text-lg md:text-xl leading-tight">
+                    {m.title}
+                  </h3>
+                </a>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </section>
+
+        {/* Detailed missions */}
+        {MISSIONS.map((m, idx) => (
+          <section
+            key={m.number}
+            id={`mission-${m.number}`}
+            className={`py-16 md:py-32 px-6 md:px-10 ${idx % 2 === 0 ? "bg-background" : "bg-surface-container-low"} scroll-mt-32`}
+          >
+            <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+              {/* Visual side */}
+              <ImageReveal
+                direction={idx % 2 === 0 ? "right" : "left"}
+                className={`lg:col-span-5 ${idx % 2 === 0 ? "lg:order-1" : "lg:order-2"}`}
+              >
+                <div
+                  className={`relative aspect-[4/5] rounded-[2rem] md:rounded-[3rem] overflow-hidden p-8 md:p-12 flex flex-col justify-between`}
+                >
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${m.gradient}`}
+                  />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_50%)]" />
+
+                  <div className="relative z-10 flex items-start justify-between">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white">
+                      <Icon name={m.icon} filled className="text-2xl md:text-3xl" />
+                    </div>
+                    <span className="font-serif italic text-white/80 text-5xl md:text-7xl leading-none">
+                      {m.number}
+                    </span>
+                  </div>
+
+                  <div className="relative z-10">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-semibold mb-3 md:mb-4">
+                      {m.eyebrow}
+                    </p>
+                    <p className="font-serif italic text-white text-xl md:text-3xl leading-snug">
+                      &ldquo;{m.tagline}&rdquo;
+                    </p>
+                  </div>
+                </div>
+              </ImageReveal>
+
+              {/* Content side */}
+              <FadeUp
+                delay={0.2}
+                className={`lg:col-span-7 ${idx % 2 === 0 ? "lg:order-2" : "lg:order-1"}`}
+              >
+                <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-4">
+                  Mission · {m.number}
+                </p>
+                <h2 className="font-serif text-primary text-4xl md:text-6xl leading-[1.02] mb-6 md:mb-8">
+                  {m.title.split(m.italicWord)[0]}
+                  <span className="italic">{m.italicWord}</span>
+                  {m.title.split(m.italicWord)[1]}
+                </h2>
+                <p className="text-base md:text-lg text-on-surface-variant leading-relaxed mb-8 md:mb-10">
+                  {m.description}
+                </p>
+
+                {/* Programs list */}
+                <div className="mb-8 md:mb-10">
+                  <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-5 md:mb-6">
+                    Programmes phares
+                  </p>
+                  <ul className="space-y-4">
+                    {m.programs.map((p) => (
+                      <li
+                        key={p}
+                        className="flex items-start gap-4 pb-4 border-b border-outline-variant/30 last:border-0 last:pb-0"
+                      >
+                        <span className="w-6 h-6 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Icon name="check" className="text-[14px]" />
+                        </span>
+                        <span className="text-base md:text-lg text-on-surface font-serif italic">
+                          {p}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-4 md:gap-6 py-6 md:py-8 border-y border-outline-variant/30">
+                  {m.stats.map((s) => (
+                    <div key={s.label}>
+                      <div className="font-serif text-secondary text-3xl md:text-5xl leading-none mb-2">
+                        {s.value}
+                      </div>
+                      <p className="text-[11px] md:text-xs uppercase tracking-widest text-on-surface-variant">
+                        {s.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <Link
+                  href="/aider"
+                  className="inline-flex items-center gap-3 mt-8 md:mt-10 text-secondary font-semibold text-sm uppercase tracking-widest group"
+                >
+                  Soutenir cette mission
+                  <Icon
+                    name="arrow_forward"
+                    className="text-base group-hover:translate-x-1 transition-transform"
+                  />
+                </Link>
+              </FadeUp>
+            </div>
+          </section>
+        ))}
+
+        {/* CTA */}
+        <section className="relative py-20 md:py-36 px-6 md:px-10 bg-primary text-on-primary overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <img
+              src={HERO_IMAGE}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <FadeUp className="relative max-w-3xl mx-auto text-center">
+            <p className="text-xs uppercase tracking-[0.3em] text-on-primary/70 font-semibold mb-4 md:mb-6">
+              Soutenir nos missions
+            </p>
+            <h2 className="font-serif text-4xl md:text-6xl lg:text-7xl leading-[1.05] mb-6 md:mb-8">
+              Votre don finance <span className="italic">chacune</span> de
+              ces missions.
+            </h2>
+            <p className="text-base md:text-lg text-on-primary/85 mb-10 md:mb-12 max-w-xl mx-auto">
+              85 % de chaque don va directement aux programmes. La
+              transparence est notre engagement quotidien.
+            </p>
+            <Link
+              href="/aider"
+              className="inline-flex items-center gap-3 bg-gradient-to-br from-secondary to-[#e01e62] text-on-secondary px-10 py-5 rounded-full font-bold text-base shadow-[0_16px_40px_-10px_rgba(184,0,75,0.5)] hover:scale-[1.03] transition-transform"
+            >
+              <Icon name="favorite" filled />
+              Faire un don
+              <Icon name="arrow_forward" />
+            </Link>
+          </FadeUp>
+        </section>
+      </main>
+      <Footer />
+    </>
+  );
+}
