@@ -77,8 +77,15 @@ export type FormStats = {
 type HelloAssoPayment = {
   amount?: number;
   state?: string;
-  payer?: { email?: string };
-  order?: { id?: number };
+  date?: string;
+  payer?: { email?: string; firstName?: string; lastName?: string };
+  order?: {
+    id?: number;
+    isAnonymous?: boolean;
+    isAmountHidden?: boolean;
+    customFields?: Array<{ name?: string; answer?: string }>;
+  };
+  customFields?: Array<{ name?: string; answer?: string }>;
 };
 
 type HelloAssoPaymentsPage = {
@@ -211,5 +218,87 @@ export async function getFormStats(opts?: {
   } catch (err) {
     console.error("HelloAsso getFormStats failed", err);
     return null;
+  }
+}
+
+export type RecentDonation = {
+  id: string;
+  donorName: string;
+  amount: number | null; // null when isAmountHidden
+  date: string; // ISO
+  message: string | null; // surfaced when the HelloAsso form has a free-text custom field
+};
+
+// Compact display name: "Bilel M." (first name + last initial). Falls back to
+// "Donateur anonyme" when the donor opted out of public attribution.
+function formatDonorName(p: HelloAssoPayment): string {
+  if (p.order?.isAnonymous) return "Donateur anonyme";
+  const first = p.payer?.firstName?.trim();
+  const last = p.payer?.lastName?.trim();
+  if (!first && !last) return "Donateur anonyme";
+  const initial = last ? `${last.charAt(0).toUpperCase()}.` : "";
+  return [first, initial].filter(Boolean).join(" ");
+}
+
+// Look for a donor message in HelloAsso custom fields. The field name is not
+// standardized — we match common French/English labels. Returns null when no
+// custom field is configured on the form.
+function extractMessage(p: HelloAssoPayment): string | null {
+  const fields = [...(p.customFields ?? []), ...(p.order?.customFields ?? [])];
+  if (fields.length === 0) return null;
+  const messageField = fields.find((f) => {
+    const name = (f.name ?? "").toLowerCase();
+    return (
+      name.includes("message") ||
+      name.includes("commentaire") ||
+      name.includes("comment") ||
+      name.includes("dédicace") ||
+      name.includes("mot")
+    );
+  });
+  const answer = messageField?.answer?.trim();
+  return answer ? answer : null;
+}
+
+export async function getRecentDonations(opts?: {
+  orgSlug?: string;
+  formType?: string;
+  formSlug?: string;
+  limit?: number;
+}): Promise<RecentDonation[]> {
+  const orgSlug = opts?.orgSlug ?? process.env.HELLOASSO_ORG_SLUG;
+  const formType = opts?.formType ?? process.env.HELLOASSO_FORM_TYPE;
+  const formSlug = opts?.formSlug ?? process.env.HELLOASSO_FORM_SLUG;
+  const limit = opts?.limit ?? 8;
+
+  if (!orgSlug || !formType || !formSlug) return [];
+  if (!isHelloAssoConfigured()) return [];
+
+  try {
+    // The payments endpoint returns most-recent-first by default; we only
+    // need the first page since limit is small.
+    const page = await helloFetch<HelloAssoPaymentsPage>(
+      `/organizations/${orgSlug}/forms/${formType}/${formSlug}/payments?pageIndex=1&pageSize=${Math.min(
+        100,
+        limit * 3,
+      )}&withDetails=true`,
+      { revalidate: 300 },
+    );
+    const out: RecentDonation[] = [];
+    for (const p of page.data ?? []) {
+      if (p.state !== "Authorized") continue;
+      out.push({
+        id: String(p.order?.id ?? `${p.date}-${p.amount}`),
+        donorName: formatDonorName(p),
+        amount: p.order?.isAmountHidden ? null : Math.round((p.amount ?? 0) / 100),
+        date: p.date ?? new Date().toISOString(),
+        message: extractMessage(p),
+      });
+      if (out.length >= limit) break;
+    }
+    return out;
+  } catch (err) {
+    console.error("HelloAsso getRecentDonations failed", err);
+    return [];
   }
 }

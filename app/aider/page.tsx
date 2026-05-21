@@ -5,7 +5,16 @@ import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { PageHero } from "@/components/page-hero";
 import { FadeUp, Magnetic, Stagger, StaggerItem } from "@/components/anim";
-import { HELLOASSO_URL, HELLOASSO_WIDGET_URL } from "@/components/site-data";
+import {
+  HELLOASSO_URL,
+  HELLOASSO_WIDGET_URL,
+  HELLOASSO_GENERAL_FORM,
+} from "@/components/site-data";
+import {
+  getRecentDonations,
+  isHelloAssoConfigured,
+  type RecentDonation,
+} from "@/lib/helloasso";
 
 export const metadata: Metadata = {
   title: "Comment aider · Le Combat d'Alya",
@@ -86,7 +95,129 @@ const STEPS = [
   },
 ];
 
-export default function AiderPage() {
+const EUR_FORMATTER = new Intl.NumberFormat("fr-FR", {
+  style: "currency",
+  currency: "EUR",
+  maximumFractionDigits: 0,
+});
+
+function formatRelativeDate(iso: string): string {
+  const date = new Date(iso);
+  const diffMs = Date.now() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60_000);
+  if (diffMin < 1) return "à l'instant";
+  if (diffMin < 60) return `il y a ${diffMin} min`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `il y a ${diffH} h`;
+  const diffD = Math.floor(diffH / 24);
+  if (diffD < 7) return `il y a ${diffD} j`;
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "short",
+  }).format(date);
+}
+
+function DonorAvatar({ name }: { name: string }) {
+  const initials = name === "Donateur anonyme"
+    ? "—"
+    : name
+        .split(/\s+/)
+        .map((p) => p.charAt(0).toUpperCase())
+        .slice(0, 2)
+        .join("");
+  const seed = name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const gradients = [
+    "from-secondary to-[#e01e62]",
+    "from-primary to-primary-container",
+    "from-[#a26369] to-[#864b51]",
+    "from-[#7a5a5e] to-primary",
+  ];
+  const gradient = gradients[seed % gradients.length];
+  return (
+    <div
+      className={`w-10 h-10 md:w-11 md:h-11 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-semibold text-xs md:text-sm flex-shrink-0`}
+    >
+      {initials}
+    </div>
+  );
+}
+
+function DonationCard({ donation }: { donation: RecentDonation }) {
+  return (
+    <article className="bg-surface-container-lowest rounded-2xl md:rounded-3xl p-5 md:p-6 h-full flex flex-col">
+      <div className="flex items-center gap-3 mb-4">
+        <DonorAvatar name={donation.donorName} />
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-primary text-sm truncate">
+            {donation.donorName}
+          </p>
+          <p className="text-[11px] text-on-surface-variant uppercase tracking-[0.15em] mt-0.5">
+            {formatRelativeDate(donation.date)}
+          </p>
+        </div>
+        {donation.amount !== null && (
+          <span className="font-serif text-secondary text-xl md:text-2xl leading-none whitespace-nowrap">
+            {EUR_FORMATTER.format(donation.amount)}
+          </span>
+        )}
+      </div>
+      {donation.message ? (
+        <p className="text-on-surface-variant italic font-serif text-sm md:text-base leading-relaxed flex-1">
+          &ldquo;{donation.message}&rdquo;
+        </p>
+      ) : (
+        <p className="text-on-surface-variant/60 italic font-serif text-sm leading-relaxed flex-1">
+          Un soutien chaleureux pour Alya.
+        </p>
+      )}
+    </article>
+  );
+}
+
+function RecentDonations({ donations }: { donations: RecentDonation[] }) {
+  if (donations.length === 0) return null;
+  return (
+    <section className="px-6 md:px-10 pb-16 md:pb-24">
+      <div className="max-w-screen-2xl mx-auto">
+        <FadeUp className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 md:mb-14 gap-4">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3 mb-3 md:mb-4">
+              <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+              <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold">
+                En direct · Mur des soutiens
+              </p>
+            </div>
+            <h2 className="font-serif text-primary text-3xl md:text-5xl leading-[1.05]">
+              Les <span className="italic">derniers gestes</span> qui font la
+              différence.
+            </h2>
+          </div>
+          <p className="text-sm md:text-base text-on-surface-variant font-serif italic max-w-sm">
+            Chaque don, chaque mot, chaque main tendue construit le combat
+            d&apos;Alya.
+          </p>
+        </FadeUp>
+
+        <Stagger
+          staggerDelay={0.07}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5"
+        >
+          {donations.map((d) => (
+            <StaggerItem key={d.id}>
+              <DonationCard donation={d} />
+            </StaggerItem>
+          ))}
+        </Stagger>
+      </div>
+    </section>
+  );
+}
+
+export default async function AiderPage() {
+  const donations = isHelloAssoConfigured()
+    ? await getRecentDonations({ ...HELLOASSO_GENERAL_FORM, limit: 8 })
+    : [];
+
   return (
     <>
       <Nav />
@@ -191,6 +322,10 @@ export default function AiderPage() {
             </div>
           </FadeUp>
         </section>
+
+        {/* Live wall of recent donations */}
+        <RecentDonations donations={donations} />
+
         {/* Ways to help */}
         <section className="py-16 md:py-24 px-6 md:px-10 bg-background">
           <div className="max-w-screen-2xl mx-auto">

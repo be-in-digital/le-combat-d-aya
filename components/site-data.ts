@@ -13,6 +13,13 @@ export const HELLOASSO_URL =
 
 export const HELLOASSO_WIDGET_URL = `${HELLOASSO_URL}/widget`;
 
+// General donation form (open-amount, embedded on /aider). The home page
+// surfaces a separate CrowdFunding (see HELLOASSO_FORM_TYPE/SLUG env vars).
+export const HELLOASSO_GENERAL_FORM = {
+  formType: "Donation",
+  formSlug: "2",
+} as const;
+
 export const ORG = {
   name: "Le Combat d'Alya",
   email: "contact@lecombatdalya.fr",
