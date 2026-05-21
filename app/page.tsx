@@ -15,6 +15,7 @@ import {
   StaggerItem,
 } from "@/components/anim";
 import { NewsletterForm } from "@/components/newsletter-form";
+import { ShareButton } from "@/components/share-button";
 import { sanityFetch } from "@/sanity/fetch";
 import { getFormStats, isHelloAssoConfigured } from "@/lib/helloasso";
 import {
@@ -678,15 +679,20 @@ function FeaturedCampaign({ campaign }: { campaign: CampaignDoc | null }) {
                 <Magnetic className="flex-1">
                   <Link
                     href={donateHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-full bg-gradient-to-br from-secondary to-[#e01e62] text-on-secondary py-4 md:py-5 rounded-full text-sm md:text-base font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-[0_12px_32px_-8px_rgba(184,0,75,0.35)] flex items-center justify-center gap-3"
                   >
                     <Icon name="favorite" filled className="text-base" />
                     Contribuer à cette campagne
                   </Link>
                 </Magnetic>
-                <button className="sm:w-auto bg-surface-container-high text-primary px-8 py-4 md:py-5 rounded-full text-sm md:text-base font-semibold transition-all hover:bg-surface-container-highest">
-                  Partager
-                </button>
+                <ShareButton
+                  url={donateHref}
+                  title={title}
+                  text={description ?? undefined}
+                  className="sm:w-auto bg-surface-container-high text-primary px-8 py-4 md:py-5 rounded-full text-sm md:text-base font-semibold transition-all hover:bg-surface-container-highest"
+                />
               </StaggerItem>
             </Stagger>
           </div>
@@ -1045,35 +1051,37 @@ function NewsletterCta() {
         />
       </div>
 
-      <Stagger staggerDelay={0.12} className="max-w-3xl mx-auto px-6 text-center">
-        <StaggerItem>
+      <div className="max-w-3xl mx-auto px-6 text-center">
+        <FadeUp>
           <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-5 md:mb-6">
             Rejoignez le mouvement
           </p>
-        </StaggerItem>
-        <h2 className="font-serif text-primary text-4xl md:text-6xl lg:text-7xl leading-[1.05] mb-6 md:mb-8 pb-[0.08em]">
-          <RevealText delay={0.2}>
-            <span className="italic">Restez</span> proches
-          </RevealText>
-          <RevealText delay={0.4}>de notre combat.</RevealText>
-        </h2>
-        <StaggerItem>
-          <p className="text-base md:text-lg text-on-surface-variant leading-relaxed mb-10 md:mb-12 max-w-xl mx-auto">
-            Une lettre mensuelle, sans bruit. Les avancées d&apos;Alya, les
-            campagnes en cours, et les histoires qui nous portent.
-          </p>
-        </StaggerItem>
+          <h2 className="font-serif text-primary text-4xl md:text-6xl lg:text-7xl leading-[1.05] mb-6 md:mb-8 pb-[0.08em]">
+            <RevealText delay={0.2}>
+              <span className="italic">Restez</span> proches
+            </RevealText>
+            <RevealText delay={0.4}>de notre combat.</RevealText>
+          </h2>
+        </FadeUp>
+        <Stagger staggerDelay={0.12}>
+          <StaggerItem>
+            <p className="text-base md:text-lg text-on-surface-variant leading-relaxed mb-10 md:mb-12 max-w-xl mx-auto">
+              Une lettre mensuelle, sans bruit. Les avancées d&apos;Alya, les
+              campagnes en cours, et les histoires qui nous portent.
+            </p>
+          </StaggerItem>
 
-        <StaggerItem>
-          <NewsletterForm source="site-cta" className="max-w-md mx-auto" />
-        </StaggerItem>
-        <StaggerItem>
-          <p className="text-xs text-on-surface-variant mt-5 md:mt-6 italic font-serif">
-            En vous inscrivant, vous acceptez notre politique de
-            confidentialité.
-          </p>
-        </StaggerItem>
-      </Stagger>
+          <StaggerItem>
+            <NewsletterForm source="site-cta" className="max-w-md mx-auto" />
+          </StaggerItem>
+          <StaggerItem>
+            <p className="text-xs text-on-surface-variant mt-5 md:mt-6 italic font-serif">
+              En vous inscrivant, vous acceptez notre politique de
+              confidentialité.
+            </p>
+          </StaggerItem>
+        </Stagger>
+      </div>
     </section>
   );
 }

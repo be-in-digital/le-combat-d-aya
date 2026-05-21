@@ -11,7 +11,13 @@ import {
   type HTMLMotionProps,
   type Variants,
 } from "motion/react";
-import { useEffect, useRef, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  type Ref,
+  type RefObject,
+  type ReactNode,
+} from "react";
 
 const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const EASE_REVEAL: [number, number, number, number] = [0.65, 0, 0.35, 1];
@@ -152,25 +158,31 @@ export function RevealText({
 }: RevealTextProps) {
   const Wrapper: "span" | "div" = inline ? "span" : "div";
   const Inner = inline ? motion.span : motion.div;
-  // For eager (above-the-fold), drive the reveal imperatively after mount.
-  // IntersectionObserver-based `whileInView` is unreliable for elements that
-  // already intersect the viewport before motion attaches its observer.
+  // Observe the (stationary) wrapper, not the translated inner element.
+  // The inner starts at y: 115%, which pushes its bounding-box out of the
+  // viewport — IntersectionObserver-based `whileInView` on the inner would
+  // not fire reliably. Anchoring useInView on the wrapper keeps detection
+  // accurate, and also stays correct when nested inside a parent that uses
+  // variant propagation (which would otherwise hijack the child's `animate`).
+  const wrapperRef = useRef<HTMLElement | null>(null);
+  const inView = useInView(wrapperRef as RefObject<Element>, {
+    once: true,
+    margin: "-60px 0px -60px 0px",
+  });
   const controls = useAnimationControls();
   useEffect(() => {
-    if (eager) controls.start({ y: "0%" });
-  }, [eager, controls]);
-  const animProps = eager
-    ? { animate: controls }
-    : { whileInView: { y: "0%" }, viewport: VIEWPORT };
+    if (eager || inView) controls.start({ y: "0%" });
+  }, [eager, inView, controls]);
   return (
     <Wrapper
+      ref={wrapperRef as Ref<HTMLDivElement & HTMLSpanElement>}
       className={`${inline ? "inline-block" : "block"} overflow-hidden align-bottom ${className}`}
       aria-hidden={false}
     >
       <Inner
         className={inline ? "inline-block" : "block"}
         initial={{ y: "115%" }}
-        {...animProps}
+        animate={controls}
         transition={{ duration, delay, ease: EASE_OUT_EXPO }}
       >
         {children}
