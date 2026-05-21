@@ -6,25 +6,6 @@ import Link from "next/link";
 import { Icon } from "./icon";
 import { NAV_LINKS } from "./site-data";
 
-function Masthead() {
-  return (
-    <div className="hidden md:block w-full bg-primary text-on-primary">
-      <div className="max-w-screen-2xl mx-auto px-10 py-2 flex justify-between items-center gap-4 text-[10px] uppercase tracking-[0.25em]">
-        <span className="font-light opacity-80">
-          Association reconnue d&apos;intérêt général
-        </span>
-        <span className="hidden lg:flex items-center gap-3 font-light opacity-80">
-          <Icon name="favorite" filled className="text-[12px]" />
-          <span>Chaque geste compte · Faites un don</span>
-        </span>
-        <span className="font-light opacity-80 whitespace-nowrap">
-          Édition Printemps · No. 03
-        </span>
-      </div>
-    </div>
-  );
-}
-
 export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -53,7 +34,6 @@ export function Nav() {
   return (
     <>
       <nav className="sticky top-0 w-full z-50 bg-background/85 backdrop-blur-xl">
-        <Masthead />
         <div className="flex justify-between items-center px-6 md:px-10 py-5 md:py-6 max-w-screen-2xl mx-auto gap-4">
           <Link href="/" className="flex flex-col leading-none flex-shrink-0">
             <span className="font-serif italic text-xl md:text-[28px] text-primary tracking-tight">
