@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Icon } from "./icon";
 import { NAV_LINKS } from "./site-data";
 
@@ -35,12 +36,26 @@ export function Nav() {
     <>
       <nav className="sticky top-0 w-full z-50 bg-background/85 backdrop-blur-xl">
         <div className="flex justify-between items-center px-6 md:px-10 py-5 md:py-6 max-w-screen-2xl mx-auto gap-4">
-          <Link href="/" className="flex flex-col leading-none flex-shrink-0">
-            <span className="font-serif italic text-xl md:text-[28px] text-primary tracking-tight">
-              Le Combat d&apos;Alya
-            </span>
-            <span className="hidden md:block text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mt-1">
-              Association · Depuis 2023
+          <Link
+            href="/"
+            className="flex items-center gap-3 md:gap-4 leading-none flex-shrink-0"
+            aria-label="Le Combat d'Alya — accueil"
+          >
+            <Image
+              src="/logo.png"
+              alt=""
+              width={56}
+              height={56}
+              priority
+              className="w-11 h-11 md:w-14 md:h-14 object-contain"
+            />
+            <span className="flex flex-col">
+              <span className="font-serif italic text-xl md:text-[28px] text-primary tracking-tight">
+                Le Combat d&apos;Alya
+              </span>
+              <span className="hidden md:block text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mt-1">
+                Association · Depuis 2023
+              </span>
             </span>
           </Link>
 
@@ -100,8 +115,17 @@ export function Nav() {
           }`}
         >
           <div className="flex justify-between items-center px-6 py-6 border-b border-outline-variant/30">
-            <span className="font-serif italic text-xl text-primary">
-              Le Combat d&apos;Alya
+            <span className="flex items-center gap-3">
+              <Image
+                src="/logo.png"
+                alt=""
+                width={44}
+                height={44}
+                className="w-10 h-10 object-contain"
+              />
+              <span className="font-serif italic text-xl text-primary">
+                Le Combat d&apos;Alya
+              </span>
             </span>
             <button
               type="button"
