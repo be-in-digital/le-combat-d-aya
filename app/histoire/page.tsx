@@ -258,26 +258,114 @@ export default function HistoirePage() {
             </div>
 
             <Stagger
-              staggerDelay={0.1}
-              className="grid grid-cols-2 md:grid-cols-12 gap-3 md:gap-5"
+              staggerDelay={0.08}
+              className="grid grid-cols-2 md:grid-cols-12 gap-3 md:gap-5 md:auto-rows-[130px] lg:auto-rows-[160px]"
             >
-              <StaggerItem className="md:col-span-5 md:row-span-2 aspect-[3/4] md:aspect-auto overflow-hidden rounded-[1.5rem] md:rounded-[2rem]">
-                <img src={HERO_IMAGE} alt="" className="w-full h-full object-cover" />
+              {/* 1 — Feature portrait */}
+              <StaggerItem className="col-span-2 md:col-span-5 md:row-span-5 aspect-[4/5] md:aspect-auto overflow-hidden rounded-tl-[2rem] rounded-tr-[1.25rem] rounded-bl-[1.25rem] rounded-br-[2rem] md:rounded-tl-[3rem] md:rounded-tr-[1.25rem] md:rounded-bl-[1.25rem] md:rounded-br-[5rem] relative group">
+                <img
+                  src={PORTRAIT_IMAGE}
+                  alt="Portrait d'Alya"
+                  className="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-black/0" />
+                <div className="absolute top-4 left-4 md:top-6 md:left-6">
+                  <span className="bg-background/85 backdrop-blur-sm text-primary text-[10px] uppercase tracking-[0.3em] font-semibold px-3 py-1.5 rounded-full">
+                    Cliché · 01
+                  </span>
+                </div>
+                <div className="absolute bottom-5 left-5 right-5 md:bottom-7 md:left-7 md:right-7 text-white">
+                  <p className="font-serif italic text-xl md:text-3xl leading-tight">
+                    Alya, l&apos;éclat du quotidien.
+                  </p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] font-semibold opacity-80 mt-2 md:mt-3">
+                    Montevideo · Printemps 2026
+                  </p>
+                </div>
               </StaggerItem>
-              <StaggerItem className="md:col-span-4 aspect-square overflow-hidden rounded-[1.5rem] md:rounded-[2rem]">
-                <img src={PORTRAIT_IMAGE} alt="" className="w-full h-full object-cover" />
+
+              {/* 2 — Pink quote */}
+              <StaggerItem className="col-span-2 md:col-span-4 md:row-span-2 bg-secondary text-on-secondary p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] flex flex-col justify-between aspect-[5/3] md:aspect-auto relative overflow-hidden">
+                <Icon
+                  name="format_quote"
+                  filled
+                  className="text-white text-5xl md:text-6xl opacity-80 -ml-1"
+                />
+                <div>
+                  <p className="font-serif italic text-white text-lg md:text-2xl leading-snug">
+                    &ldquo;Le sourire d&apos;Alya, c&apos;est notre
+                    boussole.&rdquo;
+                  </p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-semibold mt-3 md:mt-4">
+                    — Marion &amp; Karim
+                  </p>
+                </div>
               </StaggerItem>
-              <StaggerItem className="md:col-span-3 aspect-square overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-secondary p-6 md:p-8 flex flex-col justify-between">
-                <Icon name="format_quote" filled className="text-white text-4xl md:text-5xl opacity-70" />
-                <p className="font-serif italic text-white text-base md:text-xl leading-snug">
-                  &ldquo;Le sourire d&apos;Alya, c&apos;est notre boussole.&rdquo;
+
+              {/* 3 — Edition card */}
+              <StaggerItem className="col-span-2 md:col-span-3 md:row-span-3 bg-secondary-fixed text-secondary p-6 md:p-7 rounded-[1.5rem] md:rounded-[2rem] flex flex-col justify-between aspect-[5/4] md:aspect-auto">
+                <div>
+                  <span className="text-[10px] uppercase tracking-[0.3em] font-semibold opacity-80">
+                    Album
+                  </span>
+                  <p className="font-serif text-5xl md:text-7xl leading-none mt-2 md:mt-3">
+                    N°<span className="italic">03</span>
+                  </p>
+                </div>
+                <div>
+                  <div className="h-px bg-secondary/30 mb-4 md:mb-5" />
+                  <p className="font-serif italic text-base md:text-xl leading-tight">
+                    Printemps 2026 — douze instants captés au vol.
+                  </p>
+                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-semibold opacity-70 mt-3 md:mt-4">
+                    <Icon name="photo_camera" filled className="text-base" />
+                    Édition limitée
+                  </div>
+                </div>
+              </StaggerItem>
+
+              {/* 4 — Wide photo */}
+              <StaggerItem className="col-span-1 md:col-span-4 md:row-span-2 aspect-square md:aspect-auto overflow-hidden rounded-[1.5rem] md:rounded-[2rem] relative group">
+                <img
+                  src={HERO_IMAGE}
+                  alt="Famille d'Alya"
+                  className="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent" />
+                <span className="absolute top-3 right-3 md:top-4 md:right-4 bg-background/85 backdrop-blur-sm text-primary text-[10px] uppercase tracking-[0.3em] font-semibold px-2.5 py-1 rounded-full">
+                  Cliché · 02
+                </span>
+                <p className="absolute bottom-3 left-3 md:bottom-5 md:left-5 font-serif italic text-white text-sm md:text-lg leading-snug pr-12">
+                  En famille, le combat devient un horizon.
                 </p>
               </StaggerItem>
-              <StaggerItem className="md:col-span-3 aspect-square overflow-hidden rounded-[1.5rem] md:rounded-[2rem]">
-                <img src={HERO_IMAGE} alt="" className="w-full h-full object-cover" />
+
+              {/* 5 — Small photo */}
+              <StaggerItem className="col-span-1 md:col-span-3 md:row-span-2 aspect-square md:aspect-auto overflow-hidden rounded-[1.5rem] md:rounded-[2rem] relative group">
+                <img
+                  src={PORTRAIT_IMAGE}
+                  alt="Alya, regard complice"
+                  className="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
+                />
+                <span className="absolute bottom-3 left-3 md:bottom-4 md:left-4 bg-background/85 backdrop-blur-sm text-primary text-[10px] uppercase tracking-[0.3em] font-semibold px-2.5 py-1 rounded-full">
+                  Cliché · 03
+                </span>
               </StaggerItem>
-              <StaggerItem className="md:col-span-4 aspect-square overflow-hidden rounded-[1.5rem] md:rounded-[2rem]">
-                <img src={PORTRAIT_IMAGE} alt="" className="w-full h-full object-cover" />
+
+              {/* 6 — Caption strip */}
+              <StaggerItem className="col-span-2 md:col-span-4 md:row-span-1 bg-surface-container-lowest p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] flex items-center gap-4 md:gap-5">
+                <div className="w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-secondary-fixed text-secondary flex items-center justify-center shrink-0">
+                  <Icon name="favorite" filled className="text-xl" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant font-semibold">
+                    Note de l&apos;album
+                  </span>
+                  <p className="font-serif italic text-primary text-sm md:text-base leading-tight mt-1">
+                    Chaque cliché raconte un combat — et chaque combat, une
+                    victoire.
+                  </p>
+                </div>
               </StaggerItem>
             </Stagger>
           </div>
