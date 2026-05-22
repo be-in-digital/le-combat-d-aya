@@ -128,7 +128,7 @@ export function Footer() {
               filled
               className="text-[12px] text-secondary-fixed group-hover:scale-110 transition-transform"
             />
-            <span className="font-semibold tracking-[0.2em]">Be In Digital</span>
+            <span className="font-semibold tracking-[0.2em] text-secondary-fixed group-hover:text-white transition-colors">Be In Digital</span>
           </a>
         </div>
       </div>
