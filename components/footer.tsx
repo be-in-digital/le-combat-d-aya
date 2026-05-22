@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Icon } from "./icon";
 import { NAV_LINKS } from "./site-data";
 
@@ -7,8 +8,17 @@ export function Footer() {
     <footer className="bg-primary text-on-primary w-full pt-16 md:pt-20 pb-10">
       <div className="max-w-screen-2xl mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 md:gap-12 mb-12 md:mb-16">
         <div className="md:col-span-2 lg:col-span-5">
-          <div className="font-serif italic text-3xl md:text-4xl mb-6">
-            Le Combat d&apos;Alya
+          <div className="flex items-center gap-4 mb-6">
+            <Image
+              src="/logo.png"
+              alt=""
+              width={72}
+              height={72}
+              className="w-16 h-16 md:w-[72px] md:h-[72px] object-contain"
+            />
+            <span className="font-serif italic text-3xl md:text-4xl">
+              Le Combat d&apos;Alya
+            </span>
           </div>
           <p className="text-on-primary/80 text-sm mb-8 max-w-sm leading-relaxed">
             S&apos;engager pour demain, aujourd&apos;hui. Une association
