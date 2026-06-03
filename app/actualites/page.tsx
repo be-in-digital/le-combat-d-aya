@@ -7,19 +7,39 @@ import { PageHero } from "@/components/page-hero";
 import { FadeUp, Stagger, StaggerItem } from "@/components/anim";
 import { ArticleCover } from "@/components/article-cover";
 import { NewsletterForm } from "@/components/newsletter-form";
+import { buildMetadata } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/fetch";
 import {
   featuredArticleQuery,
   articlesQuery,
   articleCategoriesQuery,
+  simplePageQuery,
 } from "@/sanity/queries";
-import type { ArticleCard, FeaturedArticle } from "@/sanity/types";
+import type {
+  ArticleCard,
+  FeaturedArticle,
+  SimplePage,
+} from "@/sanity/types";
 
-export const metadata: Metadata = {
-  title: "Actualités · Le Combat d'Alya",
-  description:
-    "Les dernières nouvelles d'Alya, de l'association, des campagnes et des familles que nous accompagnons.",
-};
+const FALLBACK_INTRO =
+  "Campagnes, programmes, témoignages, partenariats : tout ce qui anime l'association, raconté en toute transparence.";
+const FALLBACK_DESCRIPTION =
+  "Les dernières nouvelles d'Alya, de l'association, des campagnes et des familles que nous accompagnons.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await sanityFetch<SimplePage | null>({
+    query: simplePageQuery,
+    params: { id: "newsPage" },
+    tags: ["newsPage"],
+  });
+
+  return buildMetadata({
+    seo: page?.seo,
+    title: page?.hero?.title ?? "Actualités",
+    description: page?.hero?.intro ?? FALLBACK_DESCRIPTION,
+    path: "/actualites",
+  });
+}
 
 const HERO_IMAGE =
   "https://static.wixstatic.com/media/26a6fa_b3eba259fc2e41c097fad060b3738366~mv2.jpg/v1/fill/w_1066,h_740,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/26a6fa_b3eba259fc2e41c097fad060b3738366~mv2.jpg";
@@ -112,7 +132,12 @@ function formatDate(iso: string) {
 }
 
 export default async function ActualitesPage() {
-  const [featured, articles, categoriesRaw] = await Promise.all([
+  const [page, featured, articles, categoriesRaw] = await Promise.all([
+    sanityFetch<SimplePage | null>({
+      query: simplePageQuery,
+      params: { id: "newsPage" },
+      tags: ["newsPage"],
+    }),
     sanityFetch<FeaturedArticle | null>({
       query: featuredArticleQuery,
       tags: ["article"],
@@ -127,6 +152,8 @@ export default async function ActualitesPage() {
       tags: ["article"],
     }),
   ]);
+
+  const hero = page?.hero;
 
   const usingFallback = articles.length === 0;
   const featuredArticle =
@@ -152,19 +179,32 @@ export default async function ActualitesPage() {
             { label: "Accueil", href: "/" },
             { label: "Actualités" },
           ]}
-          eyebrow="Le journal de notre combat"
+          eyebrow={hero?.eyebrow ?? "Le journal de notre combat"}
           title={
-            <>
-              Toutes nos
-              <br />
-              <span className="italic">actualités</span>.
-            </>
+            hero?.title ? (
+              <>
+                {hero.title}
+                {hero.titleAccent ? (
+                  <>
+                    {" "}
+                    <span className="italic">{hero.titleAccent}</span>
+                  </>
+                ) : null}
+              </>
+            ) : (
+              <>
+                Toutes nos
+                <br />
+                <span className="italic">actualités</span>.
+              </>
+            )
           }
-          intro="Campagnes, programmes, témoignages, partenariats : tout ce qui anime l'association, raconté en toute transparence."
+          intro={hero?.intro ?? FALLBACK_INTRO}
           meta={
-            featuredArticle?.publishedAt
+            hero?.meta ??
+            (featuredArticle?.publishedAt
               ? `Mise à jour le ${formatDate(featuredArticle.publishedAt)}`
-              : undefined
+              : undefined)
           }
         />
 

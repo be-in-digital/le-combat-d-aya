@@ -1,15 +1,17 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PortableText, type PortableTextComponents } from "@portabletext/react";
+import { PortableText } from "@portabletext/react";
 import { Icon } from "@/components/icon";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { PageHero } from "@/components/page-hero";
 import { FadeUp, Stagger, StaggerItem } from "@/components/anim";
 import { ArticleCover } from "@/components/article-cover";
+import { portableComponents } from "@/components/portable-text";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/json-ld";
 import { SITE_URL } from "@/lib/site";
+import { buildMetadata } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/fetch";
 import {
   articleBySlugQuery,
@@ -17,7 +19,6 @@ import {
   articlesQuery,
 } from "@/sanity/queries";
 import type { Article, ArticleCard } from "@/sanity/types";
-import { urlForImage } from "@/sanity/image";
 
 type Params = { slug: string };
 
@@ -53,90 +54,19 @@ export async function generateMetadata({
 
   if (!article) return { title: "Article introuvable · Le Combat d'Alya" };
 
-  return {
-    title: `${article.title} · Le Combat d'Alya`,
-    description: article.excerpt ?? undefined,
-    openGraph: {
-      title: article.title,
-      description: article.excerpt ?? undefined,
-      images: article.cover?.url ? [article.cover.url] : undefined,
-    },
-  };
+  return buildMetadata({
+    seo: article.seo,
+    title: article.title,
+    description: article.excerpt,
+    path: `/actualites/${article.slug}`,
+    // Fall back to the cover image for sharing when no dedicated OG image set.
+    ...(article.seo?.ogImage?.url
+      ? {}
+      : article.cover?.url
+        ? { seo: { ...article.seo, ogImage: { url: article.cover.url, alt: article.title } } }
+        : {}),
+  });
 }
-
-const portableComponents: PortableTextComponents = {
-  block: {
-    h2: ({ children }) => (
-      <h2 className="font-serif text-primary text-3xl md:text-4xl leading-tight mt-12 mb-5">
-        {children}
-      </h2>
-    ),
-    h3: ({ children }) => (
-      <h3 className="font-serif text-primary text-2xl md:text-3xl mt-10 mb-4">
-        {children}
-      </h3>
-    ),
-    normal: ({ children }) => (
-      <p className="text-base md:text-lg text-on-surface leading-relaxed mb-5">
-        {children}
-      </p>
-    ),
-    blockquote: ({ children }) => (
-      <blockquote className="font-serif italic text-2xl md:text-3xl text-primary border-l-4 border-secondary/40 pl-6 my-10 leading-snug">
-        {children}
-      </blockquote>
-    ),
-  },
-  marks: {
-    link: ({ value, children }) => (
-      <a
-        href={value?.href}
-        rel="noopener noreferrer"
-        className="text-secondary underline underline-offset-4 hover:text-primary transition-colors"
-      >
-        {children}
-      </a>
-    ),
-    strong: ({ children }) => (
-      <strong className="font-semibold text-primary">{children}</strong>
-    ),
-    em: ({ children }) => <em className="italic">{children}</em>,
-  },
-  list: {
-    bullet: ({ children }) => (
-      <ul className="list-disc pl-6 mb-5 space-y-2 text-on-surface text-base md:text-lg">
-        {children}
-      </ul>
-    ),
-    number: ({ children }) => (
-      <ol className="list-decimal pl-6 mb-5 space-y-2 text-on-surface text-base md:text-lg">
-        {children}
-      </ol>
-    ),
-  },
-  types: {
-    image: ({ value }) => {
-      if (!value?.asset) return null;
-      const url = urlForImage(value).width(1600).url();
-      return (
-        <figure className="my-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={url}
-            alt={value.alt ?? ""}
-            className="w-full rounded-2xl"
-            loading="lazy"
-          />
-          {value.caption && (
-            <figcaption className="text-sm text-on-surface-variant italic font-serif text-center mt-3">
-              {value.caption}
-            </figcaption>
-          )}
-        </figure>
-      );
-    },
-  },
-};
 
 export default async function ArticlePage({
   params,

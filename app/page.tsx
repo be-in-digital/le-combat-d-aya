@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Icon } from "@/components/icon";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
@@ -16,17 +17,24 @@ import {
 } from "@/components/anim";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { ShareButton } from "@/components/share-button";
+import { VideoPlayer } from "@/components/video-player";
+import { PortableProse } from "@/components/portable-text";
 import { sanityFetch } from "@/sanity/fetch";
 import { getFormStats, isHelloAssoConfigured } from "@/lib/helloasso";
+import { buildMetadata } from "@/lib/seo";
 import {
   testimonialsQuery,
   partnersQuery,
   featuredCampaignQuery,
+  homePageQuery,
+  fullMissionsQuery,
 } from "@/sanity/queries";
 import type {
   Testimonial,
   Partner,
   FeaturedCampaign as CampaignDoc,
+  HomePage,
+  Mission,
 } from "@/sanity/types";
 
 const HERO_IMAGE =
@@ -107,7 +115,17 @@ const FAQ_ITEMS = [
   },
 ];
 
-function Hero() {
+function Hero({ hero }: { hero?: HomePage["hero"] }) {
+  const eyebrow = hero?.eyebrow ?? "Solidarité & Espoir";
+  const meta = hero?.meta ?? "Histoire d'une famille — Témoignage du combat";
+  const intro =
+    hero?.intro ??
+    "Chaque geste compte pour soutenir le parcours d'Alya vers la guérison. Une histoire de famille, une mission collective, un combat porté par la bienveillance.";
+  const heroImage = hero?.image?.url ?? HERO_IMAGE;
+  const heroImageAlt = hero?.image?.alt ?? "Portrait d'Alya";
+  const primaryCta = hero?.primaryCta;
+  const secondaryCta = hero?.secondaryCta;
+
   return (
     <section className="relative px-6 md:px-10 pt-12 md:pt-20 pb-24 md:pb-40 overflow-hidden">
       <Float
@@ -125,24 +143,43 @@ function Hero() {
       <div className="max-w-screen-2xl mx-auto">
         <FadeIn className="flex items-center gap-4 md:gap-6 mb-10 md:mb-16">
           <span className="text-secondary font-semibold tracking-[0.3em] uppercase text-[10px] md:text-[11px]">
-            Solidarité &amp; Espoir
+            {eyebrow}
           </span>
           <div className="flex-1 h-px bg-outline-variant/40" />
           <span className="hidden md:inline-block text-on-surface-variant font-serif italic text-sm">
-            Histoire d&apos;une famille — Témoignage du combat
+            {meta}
           </span>
         </FadeIn>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-end">
           <div className="lg:col-span-7 z-10">
             <h1 className="font-serif text-primary leading-[0.95] mb-8 md:mb-10 text-[44px] sm:text-[72px] md:text-[96px] lg:text-[128px] tracking-[-0.02em] pb-[0.08em]">
-              <RevealText delay={0.1} eager>
-                <span className="italic">Ensemble</span>
-              </RevealText>
-              <RevealText delay={0.28} eager>
-                <span className="font-light">pour </span>
-                <span className="italic text-secondary">Alya.</span>
-              </RevealText>
+              {hero?.title || hero?.titleAccent ? (
+                <>
+                  {hero?.title ? (
+                    <RevealText delay={0.1} eager>
+                      <span className="font-light">{hero.title}</span>
+                    </RevealText>
+                  ) : null}
+                  {hero?.titleAccent ? (
+                    <RevealText delay={0.28} eager>
+                      <span className="italic text-secondary">
+                        {hero.titleAccent}
+                      </span>
+                    </RevealText>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <RevealText delay={0.1} eager>
+                    <span className="italic">Ensemble</span>
+                  </RevealText>
+                  <RevealText delay={0.28} eager>
+                    <span className="font-light">pour </span>
+                    <span className="italic text-secondary">Alya.</span>
+                  </RevealText>
+                </>
+              )}
             </h1>
 
             <FadeUp delay={0.55} className="grid grid-cols-12 gap-4 md:gap-6 items-start">
@@ -152,9 +189,7 @@ function Hero() {
                 </span>
               </div>
               <p className="col-span-12 md:col-span-7 text-base md:text-xl font-light text-on-surface-variant leading-relaxed">
-                Chaque geste compte pour soutenir le parcours d&apos;Alya vers
-                la guérison. Une histoire de famille, une mission collective,
-                un combat porté par la bienveillance.
+                {intro}
               </p>
               <div className="col-span-12 md:col-span-4 md:pl-6 md:border-l md:border-outline-variant/40 pt-4 md:pt-0 border-t md:border-t-0 border-outline-variant/30">
                 <p className="text-xs uppercase tracking-[0.25em] text-primary font-semibold mb-2">
@@ -170,18 +205,18 @@ function Hero() {
             <FadeUp delay={0.75} className="flex flex-col sm:flex-row gap-4 mt-10 md:mt-12">
               <Magnetic>
                 <Link
-                  href="/aider"
+                  href={primaryCta?.href ?? "/aider"}
                   className="bg-gradient-to-br from-secondary to-[#e01e62] text-on-secondary px-8 md:px-10 py-4 rounded-full text-base font-bold transition-all hover:scale-[1.03] active:scale-95 shadow-[0_12px_32px_-8px_rgba(184,0,75,0.4)] flex items-center justify-center gap-3"
                 >
-                  Soutenir Alya
+                  {primaryCta?.label ?? "Soutenir Alya"}
                   <Icon name="arrow_forward" className="text-base" />
                 </Link>
               </Magnetic>
               <Link
-                href="/histoire"
+                href={secondaryCta?.href ?? "/histoire"}
                 className="bg-transparent text-primary px-8 md:px-10 py-4 rounded-full text-base font-semibold transition-all hover:bg-surface-container-high border border-primary/20 text-center"
               >
-                Découvrir son histoire
+                {secondaryCta?.label ?? "Découvrir son histoire"}
               </Link>
             </FadeUp>
           </div>
@@ -190,9 +225,9 @@ function Hero() {
             <ImageReveal delay={0.35} direction="up">
               <div className="relative aspect-[4/5] rounded-tl-[3rem] md:rounded-tl-[5rem] rounded-tr-[1.5rem] md:rounded-tr-[2rem] rounded-bl-[1.5rem] md:rounded-bl-[2rem] rounded-br-[3rem] md:rounded-br-[5rem] overflow-hidden rotate-2 hover:rotate-0 transition-transform duration-[800ms] ease-out">
                 <img
-                  alt="Portrait d'Alya"
+                  alt={heroImageAlt}
                   className="w-full h-full object-cover"
-                  src={HERO_IMAGE}
+                  src={heroImage}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-transparent" />
                 <span className="absolute top-4 md:top-6 left-4 md:left-6 text-[10px] uppercase tracking-[0.3em] text-white/90 font-semibold bg-black/20 backdrop-blur-md rounded-full px-3 md:px-4 py-1.5 md:py-2">
@@ -200,6 +235,12 @@ function Hero() {
                 </span>
               </div>
             </ImageReveal>
+
+            {hero?.video ? (
+              <ImageReveal delay={0.5} direction="up" className="mt-4 md:mt-6">
+                <VideoPlayer video={hero.video} />
+              </ImageReveal>
+            ) : null}
 
             <FadeUp
               delay={1}
@@ -279,7 +320,9 @@ function TrustStrip({ partners }: { partners: Partner[] }) {
   );
 }
 
-function Stats() {
+type StatCard = { value?: string | null; label?: string | null; caption?: string | null };
+
+function Stats({ stats }: { stats: StatCard[] }) {
   return (
     <section className="py-20 md:py-36 bg-background">
       <div className="max-w-screen-2xl mx-auto px-6 md:px-10">
@@ -296,10 +339,10 @@ function Stats() {
           staggerDelay={0.12}
           className="grid grid-cols-2 md:grid-cols-4 gap-y-8 md:gap-y-0 md:divide-x divide-outline-variant/30"
         >
-          {STATS.map((stat, idx) => (
+          {stats.map((stat, idx) => (
             <StaggerItem
-              key={stat.label}
-              className={`${idx > 0 ? "md:pl-6 lg:pl-10" : ""} ${idx < STATS.length - 1 ? "md:pr-6 lg:pr-10" : ""}`}
+              key={stat.label ?? idx}
+              className={`${idx > 0 ? "md:pl-6 lg:pl-10" : ""} ${idx < stats.length - 1 ? "md:pr-6 lg:pr-10" : ""}`}
             >
               <div className="font-serif text-secondary text-4xl md:text-6xl lg:text-7xl mb-2 md:mb-3 leading-none">
                 {stat.value}
@@ -318,21 +361,40 @@ function Stats() {
   );
 }
 
-function Missions() {
+function Missions({
+  missions,
+  heading,
+}: {
+  missions: Mission[];
+  heading?: HomePage["missionsHeading"];
+}) {
+  // Map Sanity missions onto the four bento slots by index, keeping the exact
+  // hardcoded copy as per-slot fallback.
+  const m0 = missions[0];
+  const m1 = missions[1];
+  const m2 = missions[2];
+  const m3 = missions[3];
+
   return (
     <section className="py-20 md:py-36 px-6 md:px-10 bg-surface-container-low">
       <div className="max-w-screen-2xl mx-auto">
         <FadeUp className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-20 gap-6 md:gap-8">
           <div className="max-w-2xl">
             <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-4 md:mb-5">
-              Ce que nous faisons
+              {heading?.eyebrow ?? "Ce que nous faisons"}
             </p>
             <h2 className="text-4xl md:text-6xl lg:text-7xl font-serif text-primary leading-[0.95]">
-              Nos missions <span className="italic">de cœur</span>
+              {heading?.title ? (
+                heading.title
+              ) : (
+                <>
+                  Nos missions <span className="italic">de cœur</span>
+                </>
+              )}
             </h2>
             <p className="text-base md:text-lg text-on-surface-variant font-light leading-relaxed mt-6 max-w-xl">
-              Nous œuvrons chaque jour pour transformer le quotidien
-              d&apos;Alya et sensibiliser à la beauté de la différence.
+              {heading?.intro ??
+                "Nous œuvrons chaque jour pour transformer le quotidien d'Alya et sensibiliser à la beauté de la différence."}
             </p>
           </div>
           <Link
@@ -357,27 +419,32 @@ function Missions() {
               <div>
                 <div className="flex items-center gap-3 mb-6 md:mb-8">
                   <span className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-semibold">
-                    Mission principale · 01
+                    {m0?.eyebrow ? `${m0.eyebrow} · 01` : "Mission principale · 01"}
                   </span>
                   <div className="flex-1 h-px bg-white/20" />
                 </div>
                 <div className="w-12 md:w-14 h-12 md:h-14 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center mb-8 md:mb-10 text-white">
-                  <Icon name="medical_services" filled className="text-2xl md:text-3xl" />
+                  <Icon name={m0?.icon ?? "medical_services"} filled className="text-2xl md:text-3xl" />
                 </div>
                 <p className="font-serif italic text-xl md:text-3xl text-white/95 leading-snug max-w-lg">
-                  &ldquo;Nous finançons des traitements innovants et des
-                  programmes de rééducation de pointe à
-                  l&apos;international.&rdquo;
+                  {m0?.tagline ? (
+                    `“${m0.tagline}”`
+                  ) : (
+                    <>
+                      &ldquo;Nous finançons des traitements innovants et des
+                      programmes de rééducation de pointe à
+                      l&apos;international.&rdquo;
+                    </>
+                  )}
                 </p>
               </div>
               <div className="mt-8">
                 <h3 className="text-2xl md:text-4xl font-serif text-white mb-3 md:mb-4">
-                  Soins &amp; Thérapies
+                  {m0?.title ?? "Soins & Thérapies"}
                 </h3>
                 <p className="text-white/75 text-sm md:text-base max-w-md leading-relaxed mb-6">
-                  Un engagement quotidien pour repousser les limites du possible
-                  grâce à l&apos;accès aux meilleures technologies médicales
-                  mondiales.
+                  {m0?.summary ??
+                    "Un engagement quotidien pour repousser les limites du possible grâce à l'accès aux meilleures technologies médicales mondiales."}
                 </p>
                 <Link
                   href="/missions"
@@ -396,18 +463,18 @@ function Missions() {
           <StaggerItem className="md:col-span-5 md:row-span-1 group relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-secondary to-[#e01e62] p-8 md:p-10 flex flex-col justify-between transition-all duration-500 hover:-translate-y-1 min-h-[220px] md:min-h-[260px]">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/8 rounded-full -mr-28 -mt-28 blur-3xl" />
             <div className="relative z-10 flex items-start justify-between">
-              <Icon name="diversity_1" className="text-white/40 text-4xl md:text-5xl" />
+              <Icon name={m1?.icon ?? "diversity_1"} className="text-white/40 text-4xl md:text-5xl" />
               <span className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-semibold">
                 02
               </span>
             </div>
             <div className="relative z-10">
               <h3 className="text-2xl md:text-3xl font-serif text-white mb-3 italic">
-                Soutien aux Familles
+                {m1?.title ?? "Soutien aux Familles"}
               </h3>
               <p className="text-white/85 text-sm leading-relaxed">
-                Créer une communauté de bienveillance où chaque parent trouve
-                écoute et solidarité.
+                {m1?.summary ??
+                  "Créer une communauté de bienveillance où chaque parent trouve écoute et solidarité."}
               </p>
             </div>
           </StaggerItem>
@@ -418,14 +485,14 @@ function Missions() {
                 03
               </span>
               <h3 className="text-xl font-serif text-primary font-semibold mt-3 md:mt-4 mb-2">
-                Sensibilisation
+                {m2?.title ?? "Sensibilisation"}
               </h3>
               <p className="text-on-surface-variant text-xs leading-snug">
-                Changer les regards par l&apos;éducation.
+                {m2?.summary ?? "Changer les regards par l'éducation."}
               </p>
             </div>
             <Icon
-              name="visibility"
+              name={m2?.icon ?? "visibility"}
               className="text-primary text-3xl opacity-50 group-hover:opacity-100 transition-opacity self-end"
             />
           </StaggerItem>
@@ -436,10 +503,10 @@ function Missions() {
                 04
               </span>
               <h3 className="text-xl md:text-2xl font-serif text-primary mt-3 md:mt-4 mb-3">
-                Équipement
+                {m3?.title ?? "Équipement"}
               </h3>
               <p className="text-on-surface-variant text-xs leading-relaxed">
-                Mobilité augmentée via des technologies d&apos;assistance.
+                {m3?.summary ?? "Mobilité augmentée via des technologies d'assistance."}
               </p>
             </div>
             <div className="flex items-center gap-2 text-secondary font-bold text-xs uppercase tracking-widest pt-4 border-t border-outline-variant/30">
@@ -453,7 +520,11 @@ function Missions() {
   );
 }
 
-function FounderNote() {
+function FounderNote({ note }: { note?: HomePage["founderNote"] }) {
+  const portrait = note?.portrait?.url ?? HERO_IMAGE;
+  const portraitAlt = note?.portrait?.alt ?? "Famille d'Alya";
+  const hasBody = !!note?.body && note.body.length > 0;
+
   return (
     <section className="py-20 md:py-36 bg-background">
       <div className="max-w-screen-2xl mx-auto px-6 md:px-10">
@@ -462,8 +533,8 @@ function FounderNote() {
             <ImageReveal direction="left">
               <div className="aspect-[3/4] rounded-tl-[1.5rem] md:rounded-tl-[2rem] rounded-tr-[3rem] md:rounded-tr-[5rem] rounded-bl-[3rem] md:rounded-bl-[5rem] rounded-br-[1.5rem] md:rounded-br-[2rem] overflow-hidden -rotate-2">
                 <img
-                  alt="Famille d'Alya"
-                  src={HERO_IMAGE}
+                  alt={portraitAlt}
+                  src={portrait}
                   className="w-full h-full object-cover scale-110"
                 />
               </div>
@@ -486,7 +557,7 @@ function FounderNote() {
           >
             <StaggerItem>
               <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-4 md:mb-6">
-                Notre histoire
+                {note?.eyebrow ?? "Notre histoire"}
               </p>
             </StaggerItem>
             <StaggerItem>
@@ -501,40 +572,52 @@ function FounderNote() {
                   <span className="text-secondary text-3xl md:text-4xl font-serif italic mr-1">
                     &ldquo;
                   </span>
-                  Quand le diagnostic est tombé, le monde s&apos;est arrêté.
-                  Puis nous avons décidé que ce serait le début d&apos;autre
-                  chose.&rdquo;
+                  {note?.quote ? (
+                    `${note.quote}”`
+                  ) : (
+                    <>
+                      Quand le diagnostic est tombé, le monde s&apos;est arrêté.
+                      Puis nous avons décidé que ce serait le début d&apos;autre
+                      chose.&rdquo;
+                    </>
+                  )}
                 </p>
-                <p>
-                  Le Combat d&apos;Alya est né en 2019 d&apos;un besoin urgent
-                  de financer les soins de notre fille. Mais très vite, nous
-                  avons compris que d&apos;autres familles vivaient le même
-                  isolement, la même incertitude.
-                </p>
-                <p>
-                  Aujourd&apos;hui, nous transformons cette épreuve en un
-                  mouvement : pour Alya, et pour toutes les Alyas que nous
-                  n&apos;avons pas encore rencontrées.
-                </p>
+                {hasBody ? (
+                  <PortableProse value={note?.body} className="space-y-5 md:space-y-6" />
+                ) : (
+                  <>
+                    <p>
+                      Le Combat d&apos;Alya est né en 2019 d&apos;un besoin urgent
+                      de financer les soins de notre fille. Mais très vite, nous
+                      avons compris que d&apos;autres familles vivaient le même
+                      isolement, la même incertitude.
+                    </p>
+                    <p>
+                      Aujourd&apos;hui, nous transformons cette épreuve en un
+                      mouvement : pour Alya, et pour toutes les Alyas que nous
+                      n&apos;avons pas encore rencontrées.
+                    </p>
+                  </>
+                )}
               </div>
             </StaggerItem>
             <StaggerItem>
               <div className="mt-10 md:mt-12 flex items-center gap-4 md:gap-6 flex-wrap">
                 <div className="font-serif italic text-2xl md:text-3xl text-primary">
-                  — Mariam Nassar
+                  — {note?.name ?? "Mariam Nassar"}
                 </div>
                 <div className="flex-1 h-px bg-outline-variant/40 min-w-[40px]" />
                 <span className="text-xs uppercase tracking-[0.3em] text-on-surface-variant">
-                  Fondatrice
+                  {note?.role ?? "Fondatrice"}
                 </span>
               </div>
             </StaggerItem>
             <StaggerItem>
               <Link
-                href="/histoire"
+                href={note?.ctaHref ?? "/histoire"}
                 className="inline-flex items-center gap-3 text-secondary font-semibold text-sm uppercase tracking-widest group mt-8"
               >
-                Lire notre histoire complète
+                {note?.ctaLabel ?? "Lire notre histoire complète"}
                 <Icon
                   name="arrow_forward"
                   className="text-base group-hover:translate-x-1 transition-transform"
@@ -993,22 +1076,34 @@ function Testimonials({ items }: { items: Testimonial[] }) {
   );
 }
 
-function Faq() {
+type FaqCard = { q: string; a: string };
+
+function Faq({
+  items,
+  heading,
+}: {
+  items: FaqCard[];
+  heading?: HomePage["faqHeading"];
+}) {
   return (
     <section className="py-20 md:py-36 bg-surface-container">
       <div className="max-w-4xl mx-auto px-6">
         <FadeUp className="text-center mb-12 md:mb-16">
           <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-4">
-            Vos questions
+            {heading?.eyebrow ?? "Vos questions"}
           </p>
           <h2 className="text-4xl md:text-6xl font-serif text-primary pb-[0.08em]">
-            <RevealText delay={0.1}>
-              <span className="italic">Tout</span> ce qu&apos;il faut savoir.
-            </RevealText>
+            {heading?.title ? (
+              <RevealText delay={0.1}>{heading.title}</RevealText>
+            ) : (
+              <RevealText delay={0.1}>
+                <span className="italic">Tout</span> ce qu&apos;il faut savoir.
+              </RevealText>
+            )}
           </h2>
         </FadeUp>
         <Stagger staggerDelay={0.08} className="space-y-3 md:space-y-4">
-          {FAQ_ITEMS.map((item, idx) => (
+          {items.map((item, idx) => (
             <StaggerItem key={item.q}>
               <details
                 className="group bg-surface-container-lowest p-6 md:p-8 rounded-2xl md:rounded-3xl transition-colors hover:bg-surface-bright cursor-pointer"
@@ -1034,7 +1129,11 @@ function Faq() {
   );
 }
 
-function NewsletterCta() {
+function NewsletterCta({
+  newsletter,
+}: {
+  newsletter?: HomePage["newsletter"];
+}) {
   return (
     <section className="relative py-20 md:py-36 bg-background overflow-hidden">
       <div className="absolute inset-0 -z-10">
@@ -1057,17 +1156,23 @@ function NewsletterCta() {
             Rejoignez le mouvement
           </p>
           <h2 className="font-serif text-primary text-4xl md:text-6xl lg:text-7xl leading-[1.05] mb-6 md:mb-8 pb-[0.08em]">
-            <RevealText delay={0.2}>
-              <span className="italic">Restez</span> proches
-            </RevealText>
-            <RevealText delay={0.4}>de notre combat.</RevealText>
+            {newsletter?.heading ? (
+              <RevealText delay={0.2}>{newsletter.heading}</RevealText>
+            ) : (
+              <>
+                <RevealText delay={0.2}>
+                  <span className="italic">Restez</span> proches
+                </RevealText>
+                <RevealText delay={0.4}>de notre combat.</RevealText>
+              </>
+            )}
           </h2>
         </FadeUp>
         <Stagger staggerDelay={0.12}>
           <StaggerItem>
             <p className="text-base md:text-lg text-on-surface-variant leading-relaxed mb-10 md:mb-12 max-w-xl mx-auto">
-              Une lettre mensuelle, sans bruit. Les avancées d&apos;Alya, les
-              campagnes en cours, et les histoires qui nous portent.
+              {newsletter?.text ??
+                "Une lettre mensuelle, sans bruit. Les avancées d'Alya, les campagnes en cours, et les histoires qui nous portent."}
             </p>
           </StaggerItem>
 
@@ -1086,8 +1191,16 @@ function NewsletterCta() {
   );
 }
 
+export async function generateMetadata(): Promise<Metadata> {
+  const home = await sanityFetch<HomePage | null>({
+    query: homePageQuery,
+    tags: ["homePage"],
+  });
+  return buildMetadata({ seo: home?.seo, path: "/" });
+}
+
 export default async function Home() {
-  const [testimonials, partners, sanityCampaign, helloAssoStats] =
+  const [testimonials, partners, sanityCampaign, helloAssoStats, home, missions] =
     await Promise.all([
       sanityFetch<Testimonial[]>({
         query: testimonialsQuery,
@@ -1099,7 +1212,15 @@ export default async function Home() {
         tags: ["campaign"],
       }),
       isHelloAssoConfigured() ? getFormStats() : Promise.resolve(null),
+      sanityFetch<HomePage | null>({ query: homePageQuery, tags: ["homePage"] }),
+      sanityFetch<Mission[]>({ query: fullMissionsQuery, tags: ["mission"] }),
     ]);
+
+  // Resolve section data with fallback to the hardcoded constants/copy.
+  const stats: StatCard[] = home?.stats?.length ? home.stats : STATS;
+  const faqItems: FaqCard[] = home?.faq?.length
+    ? home.faq.map((f) => ({ q: f.question, a: f.answer }))
+    : FAQ_ITEMS;
 
   // Merge live HelloAsso stats over Sanity content when available.
   // Priority: Sanity (manual override) → HelloAsso (auto) → hardcoded fallback.
@@ -1129,15 +1250,15 @@ export default async function Home() {
     <>
       <Nav />
       <main>
-        <Hero />
+        <Hero hero={home?.hero} />
         <TrustStrip partners={partners} />
-        <Stats />
-        <Missions />
-        <FounderNote />
+        <Stats stats={stats} />
+        <Missions missions={missions} heading={home?.missionsHeading} />
+        <FounderNote note={home?.founderNote} />
         <FeaturedCampaign campaign={campaign} />
         <Testimonials items={testimonials} />
-        <Faq />
-        <NewsletterCta />
+        <Faq items={faqItems} heading={home?.faqHeading} />
+        <NewsletterCta newsletter={home?.newsletter} />
       </main>
       <Footer />
     </>

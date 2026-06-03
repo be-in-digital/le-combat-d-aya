@@ -38,6 +38,16 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "video",
+      title: "Vidéo de campagne",
+      type: "videoEmbed",
+    }),
+    defineField({
+      name: "story",
+      title: "Récit de la campagne",
+      type: "blockContent",
+    }),
+    defineField({
       name: "goalAmount",
       title: "Objectif (€)",
       type: "number",
@@ -84,6 +94,11 @@ export default defineType({
       title: "Campagne phare",
       type: "boolean",
       initialValue: false,
+    }),
+    defineField({
+      name: "seo",
+      title: "SEO & partage",
+      type: "seo",
     }),
   ],
   preview: {

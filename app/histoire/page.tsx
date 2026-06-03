@@ -5,18 +5,35 @@ import { Icon } from "@/components/icon";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { PageHero } from "@/components/page-hero";
+import { VideoPlayer } from "@/components/video-player";
+import { PortableProse } from "@/components/portable-text";
 import {
   FadeUp,
   ImageReveal,
   Stagger,
   StaggerItem,
 } from "@/components/anim";
+import { sanityFetch } from "@/sanity/fetch";
+import { storyPageQuery } from "@/sanity/queries";
+import type { GalleryItem, StoryPage } from "@/sanity/types";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Notre histoire · Le Combat d'Alya",
-  description:
-    "Découvrez l'histoire de la famille d'Alya et la naissance de l'association.",
-};
+const FALLBACK_DESCRIPTION =
+  "Découvrez l'histoire de la famille d'Alya et la naissance de l'association.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const story = await sanityFetch<StoryPage | null>({
+    query: storyPageQuery,
+    tags: ["storyPage"],
+  });
+
+  return buildMetadata({
+    seo: story?.seo,
+    title: story?.hero?.title ?? "Notre histoire",
+    description: story?.hero?.intro ?? FALLBACK_DESCRIPTION,
+    path: "/histoire",
+  });
+}
 
 const HERO_IMAGE =
   "https://static.wixstatic.com/media/26a6fa_b3eba259fc2e41c097fad060b3738366~mv2.jpg/v1/fill/w_1066,h_740,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/26a6fa_b3eba259fc2e41c097fad060b3738366~mv2.jpg";
@@ -69,7 +86,96 @@ const VALUES = [
   },
 ];
 
-export default function HistoirePage() {
+// Outer tile class for each bento slot, in order. Sanity gallery items are
+// mapped onto these slots so the layout matches the hardcoded fallback.
+const GALLERY_SLOTS = [
+  "col-span-2 md:col-span-5 md:row-span-5 aspect-[4/5] md:aspect-auto",
+  "col-span-2 md:col-span-4 md:row-span-2 aspect-[5/3] md:aspect-auto",
+  "col-span-2 md:col-span-3 md:row-span-3 aspect-[5/4] md:aspect-auto",
+  "col-span-1 md:col-span-4 md:row-span-2 aspect-square md:aspect-auto",
+  "col-span-1 md:col-span-3 md:row-span-2 aspect-square md:aspect-auto",
+  "col-span-2 md:col-span-4 md:row-span-1",
+];
+
+function GalleryTile({
+  item,
+  slotClass,
+  index,
+}: {
+  item: GalleryItem;
+  slotClass: string;
+  index: number;
+}) {
+  if (item._type === "quoteCard") {
+    return (
+      <StaggerItem
+        className={`${slotClass} bg-secondary text-on-secondary p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] flex flex-col justify-between relative overflow-hidden`}
+      >
+        <Icon
+          name="format_quote"
+          filled
+          className="text-white text-5xl md:text-6xl opacity-80 -ml-1"
+        />
+        <div>
+          <p className="font-serif italic text-white text-lg md:text-2xl leading-snug">
+            &ldquo;{item.quote}&rdquo;
+          </p>
+          {item.author && (
+            <p className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-semibold mt-3 md:mt-4">
+              — {item.author}
+            </p>
+          )}
+        </div>
+      </StaggerItem>
+    );
+  }
+
+  if (item._type === "videoEmbed") {
+    return (
+      <StaggerItem className={slotClass}>
+        <VideoPlayer video={item} className="w-full h-full" />
+      </StaggerItem>
+    );
+  }
+
+  // figure
+  return (
+    <StaggerItem
+      className={`${slotClass} overflow-hidden rounded-[1.5rem] md:rounded-[2rem] relative group`}
+    >
+      {item.url && (
+        <img
+          src={item.url}
+          alt={item.alt ?? ""}
+          className="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
+        />
+      )}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent" />
+      <span className="absolute top-3 right-3 md:top-4 md:right-4 bg-background/85 backdrop-blur-sm text-primary text-[10px] uppercase tracking-[0.3em] font-semibold px-2.5 py-1 rounded-full">
+        Cliché · {String(index + 1).padStart(2, "0")}
+      </span>
+      {item.caption && (
+        <p className="absolute bottom-3 left-3 md:bottom-5 md:left-5 font-serif italic text-white text-sm md:text-lg leading-snug pr-12">
+          {item.caption}
+        </p>
+      )}
+    </StaggerItem>
+  );
+}
+
+export default async function HistoirePage() {
+  const story = await sanityFetch<StoryPage | null>({
+    query: storyPageQuery,
+    tags: ["storyPage"],
+  });
+
+  const hero = story?.hero;
+  const parents = story?.parentsWord;
+  const timeline = story?.timeline?.length ? story.timeline : TIMELINE;
+  const values = story?.values?.length ? story.values : VALUES;
+  const gallery = story?.gallery?.length ? story.gallery : null;
+  const cta = story?.cta;
+
   return (
     <>
       <Nav />
@@ -79,16 +185,31 @@ export default function HistoirePage() {
             { label: "Accueil", href: "/" },
             { label: "Notre histoire" },
           ]}
-          eyebrow="Notre histoire"
+          eyebrow={hero?.eyebrow ?? "Notre histoire"}
           title={
-            <>
-              Un combat qui a commencé
-              <br />
-              par <span className="italic">un sourire</span>.
-            </>
+            hero?.title ? (
+              <>
+                {hero.title}
+                {hero.titleAccent && (
+                  <>
+                    {" "}
+                    <span className="italic">{hero.titleAccent}</span>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                Un combat qui a commencé
+                <br />
+                par <span className="italic">un sourire</span>.
+              </>
+            )
           }
-          intro="Une famille, un diagnostic, une décision : transformer l'épreuve en mouvement. Voici comment l'aventure du Combat d'Alya a commencé."
-          meta="Édition Printemps · No. 03"
+          intro={
+            hero?.intro ??
+            "Une famille, un diagnostic, une décision : transformer l'épreuve en mouvement. Voici comment l'aventure du Combat d'Alya a commencé."
+          }
+          meta={hero?.meta ?? "Édition Printemps · No. 03"}
         />
 
         {/* Photo + introduction */}
@@ -96,43 +217,55 @@ export default function HistoirePage() {
           <div className="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
             <FadeUp className="lg:col-span-7 order-2 lg:order-1">
               <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-4 md:mb-6">
-                Le mot des parents
+                {parents?.eyebrow ?? "Le mot des parents"}
               </p>
               <p className="font-serif italic text-primary text-2xl md:text-4xl lg:text-5xl leading-snug mb-8 md:mb-10">
                 <span className="text-secondary text-5xl md:text-6xl mr-1">
                   &ldquo;
                 </span>
-                Quand le diagnostic est tombé, le monde s&apos;est arrêté. Puis
-                nous avons décidé que ce serait le début d&apos;autre
-                chose.&rdquo;
+                {parents?.quote ?? (
+                  <>
+                    Quand le diagnostic est tombé, le monde s&apos;est arrêté.
+                    Puis nous avons décidé que ce serait le début d&apos;autre
+                    chose.
+                  </>
+                )}
+                &rdquo;
               </p>
-              <div className="space-y-5 md:space-y-6 text-base md:text-lg text-on-surface-variant leading-relaxed">
-                <p>
-                  Alya est née en mai 2018. Une petite fille pleine de vie, de
-                  rires, d&apos;observation. Très tôt, le diagnostic tombe :
-                  une maladie rare, peu connue, mal financée par la recherche
-                  publique.
-                </p>
-                <p>
-                  Face à l&apos;impasse, nous avons cherché ailleurs. Des
-                  protocoles innovants à l&apos;étranger, des équipements
-                  adaptés, des programmes de stimulation cognitive. Tout coûte
-                  cher, tout demande du temps.
-                </p>
-                <p>
-                  Nous avons rapidement compris que d&apos;autres familles
-                  vivaient le même parcours du combattant, le même isolement.
-                  L&apos;association est née de cette évidence : ce que nous
-                  apprenons doit servir à toutes les Alyas du pays.
-                </p>
-              </div>
+              {parents?.body?.length ? (
+                <PortableProse
+                  value={parents.body}
+                  className="space-y-5 md:space-y-6 text-base md:text-lg text-on-surface-variant leading-relaxed"
+                />
+              ) : (
+                <div className="space-y-5 md:space-y-6 text-base md:text-lg text-on-surface-variant leading-relaxed">
+                  <p>
+                    Alya est née en mai 2018. Une petite fille pleine de vie, de
+                    rires, d&apos;observation. Très tôt, le diagnostic tombe :
+                    une maladie rare, peu connue, mal financée par la recherche
+                    publique.
+                  </p>
+                  <p>
+                    Face à l&apos;impasse, nous avons cherché ailleurs. Des
+                    protocoles innovants à l&apos;étranger, des équipements
+                    adaptés, des programmes de stimulation cognitive. Tout coûte
+                    cher, tout demande du temps.
+                  </p>
+                  <p>
+                    Nous avons rapidement compris que d&apos;autres familles
+                    vivaient le même parcours du combattant, le même isolement.
+                    L&apos;association est née de cette évidence : ce que nous
+                    apprenons doit servir à toutes les Alyas du pays.
+                  </p>
+                </div>
+              )}
               <div className="mt-10 flex items-center gap-4 md:gap-6 flex-wrap">
                 <div className="font-serif italic text-2xl md:text-3xl text-primary">
-                  — Mariam Nassar
+                  — {parents?.signature ?? "Mariam Nassar"}
                 </div>
                 <div className="flex-1 h-px bg-outline-variant/40 min-w-[40px]" />
                 <span className="text-xs uppercase tracking-[0.3em] text-on-surface-variant">
-                  Fondatrice
+                  {parents?.role ?? "Fondatrice"}
                 </span>
               </div>
             </FadeUp>
@@ -140,8 +273,8 @@ export default function HistoirePage() {
               <ImageReveal direction="right">
                 <div className="aspect-[4/5] rounded-tl-[2rem] md:rounded-tl-[5rem] rounded-tr-[1rem] md:rounded-tr-[2rem] rounded-bl-[1rem] md:rounded-bl-[2rem] rounded-br-[2rem] md:rounded-br-[5rem] overflow-hidden -rotate-2">
                   <img
-                    alt="Famille d'Alya"
-                    src={HERO_IMAGE}
+                    alt={parents?.image?.alt ?? "Famille d'Alya"}
+                    src={parents?.image?.url ?? HERO_IMAGE}
                     className="w-full h-full object-cover scale-110"
                   />
                 </div>
@@ -151,7 +284,7 @@ export default function HistoirePage() {
                 className="absolute -top-4 -right-2 md:-top-6 md:-right-6 rotate-3"
               >
                 <div className="bg-secondary-fixed text-on-secondary-fixed font-serif italic text-xs md:text-sm px-4 md:px-5 py-2 md:py-3 rounded-full">
-                  Famille d&apos;Alya · 2026
+                  {parents?.imageBadge ?? "Famille d'Alya · 2026"}
                 </div>
               </FadeUp>
             </div>
@@ -163,10 +296,14 @@ export default function HistoirePage() {
           <div className="max-w-5xl mx-auto">
             <div className="mb-12 md:mb-20">
               <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-4">
-                Chronologie
+                {story?.timelineHeading?.eyebrow ?? "Chronologie"}
               </p>
               <h2 className="font-serif text-primary text-4xl md:text-6xl leading-[1.02]">
-                <span className="italic">De 2018</span> à aujourd&apos;hui.
+                {story?.timelineHeading?.title ?? (
+                  <>
+                    <span className="italic">De 2018</span> à aujourd&apos;hui.
+                  </>
+                )}
               </h2>
             </div>
 
@@ -174,9 +311,9 @@ export default function HistoirePage() {
               staggerDelay={0.15}
               className="relative space-y-10 md:space-y-16 md:pl-12 md:before:absolute md:before:left-[7px] md:before:top-2 md:before:bottom-2 md:before:w-px md:before:bg-outline-variant/40"
             >
-              {TIMELINE.map((item, idx) => (
+              {timeline.map((item, idx) => (
                 <StaggerItem
-                  key={item.year}
+                  key={`${item.year}-${idx}`}
                   className="relative grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-start"
                 >
                   <span className="hidden md:block absolute -left-[48px] top-2 w-4 h-4 rounded-full bg-secondary ring-4 ring-background" />
@@ -207,10 +344,14 @@ export default function HistoirePage() {
           <div className="max-w-screen-2xl mx-auto">
             <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
               <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-4">
-                Nos valeurs
+                {story?.valuesHeading?.eyebrow ?? "Nos valeurs"}
               </p>
               <h2 className="font-serif text-primary text-4xl md:text-6xl leading-[1.05]">
-                Ce qui nous <span className="italic">guide</span>.
+                {story?.valuesHeading?.title ?? (
+                  <>
+                    Ce qui nous <span className="italic">guide</span>.
+                  </>
+                )}
               </h2>
             </div>
 
@@ -218,14 +359,18 @@ export default function HistoirePage() {
               staggerDelay={0.12}
               className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8"
             >
-              {VALUES.map((v, idx) => (
+              {values.map((v, idx) => (
                 <StaggerItem
-                  key={v.title}
+                  key={`${v.title ?? "value"}-${idx}`}
                   className="bg-surface-container-lowest p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] flex flex-col"
                 >
                   <div className="flex items-center justify-between mb-8">
                     <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-secondary-fixed text-secondary flex items-center justify-center">
-                      <Icon name={v.icon} filled className="text-2xl md:text-3xl" />
+                      <Icon
+                        name={v.icon ?? "favorite"}
+                        filled
+                        className="text-2xl md:text-3xl"
+                      />
                     </div>
                     <span className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant font-semibold">
                       0{idx + 1}
@@ -249,15 +394,19 @@ export default function HistoirePage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-14">
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-3 md:mb-4">
-                  Album de famille
+                  {story?.galleryHeading?.eyebrow ?? "Album de famille"}
                 </p>
                 <h2 className="font-serif text-primary text-3xl md:text-5xl leading-tight">
-                  Moments <span className="italic">choisis</span>.
+                  {story?.galleryHeading?.title ?? (
+                    <>
+                      Moments <span className="italic">choisis</span>.
+                    </>
+                  )}
                 </h2>
               </div>
               <p className="text-on-surface-variant font-serif italic text-base md:text-lg max-w-sm">
-                Quelques instants de l&apos;aventure, partagés avec ceux qui
-                la portent.
+                {story?.galleryHeading?.note ??
+                  "Quelques instants de l'aventure, partagés avec ceux qui la portent."}
               </p>
             </div>
 
@@ -265,6 +414,19 @@ export default function HistoirePage() {
               staggerDelay={0.08}
               className="grid grid-cols-2 md:grid-cols-12 gap-3 md:gap-5 md:auto-rows-[130px] lg:auto-rows-[160px]"
             >
+              {gallery ? (
+                gallery
+                  .slice(0, GALLERY_SLOTS.length)
+                  .map((item, idx) => (
+                    <GalleryTile
+                      key={item._key}
+                      item={item}
+                      slotClass={GALLERY_SLOTS[idx]}
+                      index={idx}
+                    />
+                  ))
+              ) : (
+                <>
               {/* 1 — Feature portrait */}
               <StaggerItem className="col-span-2 md:col-span-5 md:row-span-5 aspect-[4/5] md:aspect-auto overflow-hidden rounded-tl-[2rem] rounded-tr-[1.25rem] rounded-bl-[1.25rem] rounded-br-[2rem] md:rounded-tl-[3rem] md:rounded-tr-[1.25rem] md:rounded-bl-[1.25rem] md:rounded-br-[5rem] relative group">
                 <img
@@ -371,6 +533,8 @@ export default function HistoirePage() {
                   </p>
                 </div>
               </StaggerItem>
+                </>
+              )}
             </Stagger>
           </div>
         </section>
@@ -379,28 +543,32 @@ export default function HistoirePage() {
         <section className="py-20 md:py-32 px-6 md:px-10 bg-surface-container-low">
           <FadeUp className="max-w-3xl mx-auto text-center">
             <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-4 md:mb-6">
-              Rejoindre l&apos;aventure
+              {cta?.eyebrow ?? "Rejoindre l'aventure"}
             </p>
             <h2 className="font-serif text-primary text-4xl md:text-6xl leading-[1.05] mb-6 md:mb-8">
-              <span className="italic">Vous aussi</span>, écrivez la suite.
+              {cta?.title ?? (
+                <>
+                  <span className="italic">Vous aussi</span>, écrivez la suite.
+                </>
+              )}
             </h2>
             <p className="text-base md:text-lg text-on-surface-variant mb-10 md:mb-12 max-w-xl mx-auto">
-              Cette histoire est encore en cours d&apos;écriture. Vous pouvez
-              en être les prochains auteurs.
+              {cta?.text ??
+                "Cette histoire est encore en cours d'écriture. Vous pouvez en être les prochains auteurs."}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/aider"
+                href={cta?.primaryCta?.href ?? "/aider"}
                 className="bg-gradient-to-br from-secondary to-[#e01e62] text-on-secondary px-8 md:px-10 py-4 rounded-full font-bold text-base flex items-center justify-center gap-3 shadow-[0_12px_32px_-8px_rgba(184,0,75,0.4)] hover:scale-[1.03] transition-transform"
               >
                 <Icon name="favorite" filled />
-                Faire un don
+                {cta?.primaryCta?.label ?? "Faire un don"}
               </Link>
               <Link
-                href="/contact"
+                href={cta?.secondaryCta?.href ?? "/contact"}
                 className="bg-transparent text-primary px-8 md:px-10 py-4 rounded-full font-semibold text-base border border-primary/20 hover:bg-surface-container-high transition-colors text-center"
               >
-                Nous contacter
+                {cta?.secondaryCta?.label ?? "Nous contacter"}
               </Link>
             </div>
           </FadeUp>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Newsreader, Manrope } from "next/font/google";
+import { draftMode } from "next/headers";
+import { VisualEditing } from "next-sanity/visual-editing";
 import { CookieBanner } from "@/components/cookie-banner";
 import { OrganizationJsonLd, WebsiteJsonLd } from "@/components/json-ld";
 import {
@@ -52,11 +54,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { isEnabled: isDraft } = await draftMode();
   return (
     <html
       lang="fr"
@@ -80,6 +83,17 @@ export default function RootLayout({
       <body className="min-h-screen bg-background text-on-surface overflow-x-hidden">
         {children}
         <CookieBanner />
+        {isDraft && (
+          <>
+            <a
+              href="/api/draft-mode/disable"
+              className="fixed bottom-4 left-1/2 z-[200] -translate-x-1/2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary shadow-lg"
+            >
+              Quitter l&apos;aperçu
+            </a>
+            <VisualEditing />
+          </>
+        )}
       </body>
     </html>
   );

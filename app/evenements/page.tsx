@@ -6,19 +6,43 @@ import { Footer } from "@/components/footer";
 import { PageHero } from "@/components/page-hero";
 import { FadeUp, Stagger, StaggerItem } from "@/components/anim";
 import { ArticleCover } from "@/components/article-cover";
+import { buildMetadata } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/fetch";
-import { upcomingEventsQuery, pastEventsQuery } from "@/sanity/queries";
-import type { EventDoc } from "@/sanity/types";
+import {
+  upcomingEventsQuery,
+  pastEventsQuery,
+  simplePageQuery,
+} from "@/sanity/queries";
+import type { EventDoc, SimplePage } from "@/sanity/types";
 import { formatEventRange } from "@/lib/events";
 
-export const metadata: Metadata = {
-  title: "Événements · Le Combat d'Alya",
-  description:
-    "Les rendez-vous de l'association : galas, conférences, ateliers, festivals. Venez nous rencontrer.",
-};
+const FALLBACK_INTRO =
+  "Galas, conférences, ateliers, festivals — autant d'occasions de porter le combat d'Alya ensemble, en personne.";
+const FALLBACK_DESCRIPTION =
+  "Les rendez-vous de l'association : galas, conférences, ateliers, festivals. Venez nous rencontrer.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await sanityFetch<SimplePage | null>({
+    query: simplePageQuery,
+    params: { id: "eventsPage" },
+    tags: ["eventsPage"],
+  });
+
+  return buildMetadata({
+    seo: page?.seo,
+    title: page?.hero?.title ?? "Événements",
+    description: page?.hero?.intro ?? FALLBACK_DESCRIPTION,
+    path: "/evenements",
+  });
+}
 
 export default async function EvenementsPage() {
-  const [upcoming, past] = await Promise.all([
+  const [page, upcoming, past] = await Promise.all([
+    sanityFetch<SimplePage | null>({
+      query: simplePageQuery,
+      params: { id: "eventsPage" },
+      tags: ["eventsPage"],
+    }),
     sanityFetch<EventDoc[]>({
       query: upcomingEventsQuery,
       params: { limit: 12 },
@@ -31,6 +55,8 @@ export default async function EvenementsPage() {
     }),
   ]);
 
+  const hero = page?.hero;
+
   return (
     <>
       <Nav />
@@ -40,15 +66,28 @@ export default async function EvenementsPage() {
             { label: "Accueil", href: "/" },
             { label: "Événements" },
           ]}
-          eyebrow="Rencontres & rendez-vous"
+          eyebrow={hero?.eyebrow ?? "Rencontres & rendez-vous"}
           title={
-            <>
-              Tous nos
-              <br />
-              <span className="italic">événements</span>.
-            </>
+            hero?.title ? (
+              <>
+                {hero.title}
+                {hero.titleAccent ? (
+                  <>
+                    {" "}
+                    <span className="italic">{hero.titleAccent}</span>
+                  </>
+                ) : null}
+              </>
+            ) : (
+              <>
+                Tous nos
+                <br />
+                <span className="italic">événements</span>.
+              </>
+            )
           }
-          intro="Galas, conférences, ateliers, festivals — autant d'occasions de porter le combat d'Alya ensemble, en personne."
+          intro={hero?.intro ?? FALLBACK_INTRO}
+          meta={hero?.meta ?? undefined}
         />
 
         <section className="px-6 md:px-10 pb-20 md:pb-28">

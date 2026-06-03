@@ -6,12 +6,30 @@ import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { PageHero } from "@/components/page-hero";
 import { FadeUp, ImageReveal, Stagger, StaggerItem } from "@/components/anim";
+import { VideoPlayer } from "@/components/video-player";
+import { PortableProse } from "@/components/portable-text";
+import { sanityFetch } from "@/sanity/fetch";
+import { missionsPageQuery, fullMissionsQuery } from "@/sanity/queries";
+import type { MissionsPage, Mission } from "@/sanity/types";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Nos missions · Le Combat d'Alya",
-  description:
-    "Soins, soutien aux familles, sensibilisation, équipement : nos quatre piliers d'action.",
-};
+const FALLBACK_DESCRIPTION =
+  "Soins, soutien aux familles, sensibilisation, équipement : nos quatre piliers d'action.";
+
+// Gradient / background palettes reused from the hardcoded MISSIONS below so
+// Sanity-driven cards keep the exact same styling, cycled by index.
+const MISSION_GRADIENTS = [
+  "from-[#4A5C7A] via-[#5B5670] to-[#6D4F60]",
+  "from-secondary via-[#cf0e58] to-[#e01e62]",
+  "from-[#a26369] via-[#864b51] to-[#6d363c]",
+  "from-[#5B5670] via-[#6D4F60] to-[#864b51]",
+];
+const MISSION_BGS = [
+  "bg-surface-container-low",
+  "bg-surface-container-lowest",
+  "bg-surface-container",
+  "bg-surface-container-high",
+];
 
 const HERO_IMAGE =
   "https://static.wixstatic.com/media/26a6fa_b3eba259fc2e41c097fad060b3738366~mv2.jpg/v1/fill/w_1066,h_740,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/26a6fa_b3eba259fc2e41c097fad060b3738366~mv2.jpg";
@@ -40,6 +58,8 @@ const MISSIONS = [
     icon: "medical_services",
     gradient: "from-[#4A5C7A] via-[#5B5670] to-[#6D4F60]",
     bg: "bg-surface-container-low",
+    cover: null,
+    video: null,
   },
   {
     number: "02",
@@ -64,6 +84,8 @@ const MISSIONS = [
     icon: "diversity_1",
     gradient: "from-secondary via-[#cf0e58] to-[#e01e62]",
     bg: "bg-surface-container-lowest",
+    cover: null,
+    video: null,
   },
   {
     number: "03",
@@ -88,6 +110,8 @@ const MISSIONS = [
     icon: "visibility",
     gradient: "from-[#a26369] via-[#864b51] to-[#6d363c]",
     bg: "bg-surface-container",
+    cover: null,
+    video: null,
   },
   {
     number: "04",
@@ -112,10 +136,55 @@ const MISSIONS = [
     icon: "settings_accessibility",
     gradient: "from-[#5B5670] via-[#6D4F60] to-[#864b51]",
     bg: "bg-surface-container-high",
+    cover: null,
+    video: null,
   },
 ];
 
-export default function MissionsPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await sanityFetch<MissionsPage | null>({
+    query: missionsPageQuery,
+    tags: ["missionsPage"],
+  });
+  return buildMetadata({
+    seo: page?.seo,
+    title: page?.hero?.title ?? "Nos missions",
+    description: page?.hero?.intro ?? FALLBACK_DESCRIPTION,
+    path: "/missions",
+  });
+}
+
+export default async function MissionsPage() {
+  const [page, sanityMissions] = await Promise.all([
+    sanityFetch<MissionsPage | null>({
+      query: missionsPageQuery,
+      tags: ["missionsPage"],
+    }),
+    sanityFetch<Mission[]>({ query: fullMissionsQuery, tags: ["mission"] }),
+  ]);
+
+  // Adapt Sanity missions to the existing card shape, deriving the fields the
+  // schema doesn't carry (number/gradient/bg) so styling stays identical.
+  const missions = sanityMissions?.length
+    ? sanityMissions.map((m, i) => ({
+        number: String(i + 1).padStart(2, "0"),
+        eyebrow: m.eyebrow ?? "",
+        title: m.title,
+        italicWord: m.italicWord ?? "",
+        tagline: m.tagline ?? "",
+        description: m.description ?? m.summary ?? "",
+        programs: m.programs ?? [],
+        stats: m.stats ?? [],
+        icon: m.icon,
+        gradient: MISSION_GRADIENTS[i % MISSION_GRADIENTS.length],
+        bg: MISSION_BGS[i % MISSION_BGS.length],
+        cover: m.cover ?? null,
+        video: m.video ?? null,
+      }))
+    : MISSIONS;
+
+  const hero = page?.hero;
+
   return (
     <>
       <Nav />
@@ -125,16 +194,30 @@ export default function MissionsPage() {
             { label: "Accueil", href: "/" },
             { label: "Nos missions" },
           ]}
-          eyebrow="Ce que nous faisons"
+          eyebrow={hero?.eyebrow ?? "Ce que nous faisons"}
           title={
-            <>
-              Quatre piliers,
-              <br />
-              une <span className="italic">raison d&apos;être</span>.
-            </>
+            hero?.title ?? (
+              <>
+                Quatre piliers,
+                <br />
+                une <span className="italic">raison d&apos;être</span>.
+              </>
+            )
           }
-          intro="Soins, soutien, sensibilisation, équipement. Chaque mission est pensée comme un levier complémentaire pour transformer le quotidien d'Alya et celui des familles que nous accompagnons."
+          intro={
+            hero?.intro ??
+            "Soins, soutien, sensibilisation, équipement. Chaque mission est pensée comme un levier complémentaire pour transformer le quotidien d'Alya et celui des familles que nous accompagnons."
+          }
         />
+
+        {page?.intro && page.intro.length > 0 && (
+          <section className="px-6 md:px-10 pb-4 md:pb-8">
+            <PortableProse
+              value={page.intro}
+              className="max-w-3xl mx-auto"
+            />
+          </section>
+        )}
 
         {/* Summary nav */}
         <section className="px-6 md:px-10 pb-12 md:pb-20">
@@ -142,7 +225,7 @@ export default function MissionsPage() {
             staggerDelay={0.08}
             className="max-w-screen-2xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5"
           >
-            {MISSIONS.map((m) => (
+            {missions.map((m) => (
               <StaggerItem key={m.number}>
                 <a
                   href={`#mission-${m.number}`}
@@ -167,7 +250,7 @@ export default function MissionsPage() {
         </section>
 
         {/* Detailed missions */}
-        {MISSIONS.map((m, idx) => (
+        {missions.map((m, idx) => (
           <section
             key={m.number}
             id={`mission-${m.number}`}
@@ -182,6 +265,13 @@ export default function MissionsPage() {
                 <div
                   className={`relative aspect-[4/5] rounded-[2rem] md:rounded-[3rem] overflow-hidden p-8 md:p-12 flex flex-col justify-between`}
                 >
+                  {m.cover?.url && (
+                    <img
+                      src={m.cover.url}
+                      alt={m.cover.alt ?? ""}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  )}
                   <div
                     className={`absolute inset-0 bg-gradient-to-br ${m.gradient}`}
                   />
@@ -270,6 +360,10 @@ export default function MissionsPage() {
                     className="text-base group-hover:translate-x-1 transition-transform"
                   />
                 </Link>
+
+                {m.video && (
+                  <VideoPlayer video={m.video} className="mt-8 md:mt-10" />
+                )}
               </FadeUp>
             </div>
           </section>

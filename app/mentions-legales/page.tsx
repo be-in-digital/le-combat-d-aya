@@ -5,14 +5,78 @@ import { Footer } from "@/components/footer";
 import { PageHero } from "@/components/page-hero";
 import { LegalLayout, LegalSection, LegalDl } from "@/components/legal-layout";
 import { ORG } from "@/components/site-data";
+import { sanityFetch } from "@/sanity/fetch";
+import { legalPageBySlugQuery } from "@/sanity/queries";
+import type { LegalPage } from "@/sanity/types";
+import { buildMetadata } from "@/lib/seo";
+import { PortableProse } from "@/components/portable-text";
 
-export const metadata: Metadata = {
-  title: "Mentions légales · Le Combat d'Alya",
-  description: "Mentions légales du site Le Combat d'Alya.",
-  robots: { index: true, follow: false },
-};
+const SLUG = "mentions-legales";
+const FALLBACK_TITLE = "Mentions légales · Le Combat d'Alya";
+const FALLBACK_DESCRIPTION = "Mentions légales du site Le Combat d'Alya.";
 
-export default function MentionsLegalesPage() {
+function getLegalPage() {
+  return sanityFetch<LegalPage | null>({
+    query: legalPageBySlugQuery,
+    params: { slug: SLUG },
+    tags: ["legalPage", `legalPage:${SLUG}`],
+  });
+}
+
+function formatLastUpdated(value?: string | null): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const doc = await getLegalPage();
+  return {
+    ...buildMetadata({
+      seo: doc?.seo,
+      title: doc?.title ?? FALLBACK_TITLE,
+      description: doc?.intro ?? FALLBACK_DESCRIPTION,
+      path: `/${SLUG}`,
+    }),
+    robots: { index: true, follow: false },
+  };
+}
+
+export default async function MentionsLegalesPage() {
+  const doc = await getLegalPage();
+
+  if (doc?.body?.length) {
+    const lastUpdated = formatLastUpdated(doc.lastUpdated);
+    return (
+      <>
+        <Nav />
+        <main>
+          <PageHero
+            breadcrumbs={[
+              { label: "Accueil", href: "/" },
+              { label: "Mentions légales" },
+            ]}
+            eyebrow="Informations légales"
+            title={doc.title}
+            intro={doc.intro ?? undefined}
+            meta={
+              lastUpdated ? `Dernière mise à jour : ${lastUpdated}` : undefined
+            }
+          />
+          <LegalLayout>
+            <PortableProse value={doc.body} />
+          </LegalLayout>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Nav />

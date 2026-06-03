@@ -73,18 +73,12 @@ export default defineType({
     defineField({
       name: "body",
       title: "Contenu",
-      type: "array",
-      of: [
-        { type: "block" },
-        {
-          type: "image",
-          options: { hotspot: true },
-          fields: [
-            defineField({ name: "alt", title: "Texte alternatif", type: "string" }),
-            defineField({ name: "caption", title: "Légende", type: "string" }),
-          ],
-        },
-      ],
+      type: "blockContent",
+    }),
+    defineField({
+      name: "seo",
+      title: "SEO & partage",
+      type: "seo",
     }),
   ],
   orderings: [
