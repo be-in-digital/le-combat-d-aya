@@ -67,7 +67,7 @@ export function ContactForm() {
           id="firstname"
           name="firstname"
           label="Prénom"
-          placeholder="Marion"
+          placeholder="Camille"
           error={fieldError("firstname")}
         />
         <Field

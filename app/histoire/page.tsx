@@ -25,24 +25,29 @@ const PORTRAIT_IMAGE =
 
 const TIMELINE = [
   {
-    year: "2023",
-    title: "Le diagnostic",
-    text: "Tout commence par un diagnostic inattendu. La famille d'Alya cherche désespérément des soins adaptés et découvre l'isolement des maladies rares.",
+    year: "2018",
+    title: "La naissance d'Alya",
+    text: "Alya voit le jour en mai 2018. Une petite fille pleine de vie, de rires et de curiosité.",
   },
   {
-    year: "2024",
+    year: "2019",
     title: "Naissance de l'association",
-    text: "Le Combat d'Alya est officiellement créé. Première campagne de financement lancée auprès des proches, qui mobilise 15 000 € en six semaines.",
+    text: "En janvier 2019, Le Combat d'Alya est officiellement créé pour financer les soins d'Alya et tendre la main aux familles confrontées au même parcours.",
+  },
+  {
+    year: "2019‑25",
+    title: "Des soins sans frontières",
+    text: "Rééducation intensive en Espagne jusqu'à trois fois par an, matériel médical pour Alya, financement d'un véhicule adapté (PMR), et envoi de matériel médical à l'étranger pour des enfants lourdement handicapés.",
   },
   {
     year: "2025",
-    title: "Reconnaissance d'intérêt général",
-    text: "L'association obtient le statut d'intérêt général. Le réseau s'élargit : premiers partenaires hospitaliers, premiers bénévoles, premiers programmes financés.",
+    title: "Premier protocole au Mexique",
+    text: "En décembre 2025, l'association finance un premier protocole médical innovant au Mexique pour Alya.",
   },
   {
     year: "2026",
-    title: "Un mouvement collectif",
-    text: "850 familles accompagnées, 15 partenaires engagés, des soins de pointe rendus accessibles. L'aventure ne fait que commencer.",
+    title: "La campagne Cytotron",
+    text: "La campagne en cours finance un second protocole médical au Mexique : le Cytotron. L'aventure ne fait que commencer.",
   },
 ];
 
@@ -103,10 +108,10 @@ export default function HistoirePage() {
               </p>
               <div className="space-y-5 md:space-y-6 text-base md:text-lg text-on-surface-variant leading-relaxed">
                 <p>
-                  Alya est née en 2019. Une petite fille pleine de vie, de
-                  rires, d&apos;observation. À ses trois ans, le diagnostic
-                  tombe : une maladie rare, peu connue, mal financée par la
-                  recherche publique.
+                  Alya est née en mai 2018. Une petite fille pleine de vie, de
+                  rires, d&apos;observation. Très tôt, le diagnostic tombe :
+                  une maladie rare, peu connue, mal financée par la recherche
+                  publique.
                 </p>
                 <p>
                   Face à l&apos;impasse, nous avons cherché ailleurs. Des
@@ -123,11 +128,11 @@ export default function HistoirePage() {
               </div>
               <div className="mt-10 flex items-center gap-4 md:gap-6 flex-wrap">
                 <div className="font-serif italic text-2xl md:text-3xl text-primary">
-                  — Marion &amp; Karim
+                  — Mariam Nassar
                 </div>
                 <div className="flex-1 h-px bg-outline-variant/40 min-w-[40px]" />
                 <span className="text-xs uppercase tracking-[0.3em] text-on-surface-variant">
-                  Fondateurs
+                  Fondatrice
                 </span>
               </div>
             </FadeUp>
@@ -161,8 +166,7 @@ export default function HistoirePage() {
                 Chronologie
               </p>
               <h2 className="font-serif text-primary text-4xl md:text-6xl leading-[1.02]">
-                <span className="italic">Trois ans</span>, quatre étapes
-                clés.
+                <span className="italic">De 2018</span> à aujourd&apos;hui.
               </h2>
             </div>
 
@@ -297,7 +301,7 @@ export default function HistoirePage() {
                     boussole.&rdquo;
                   </p>
                   <p className="text-[10px] uppercase tracking-[0.3em] text-white/70 font-semibold mt-3 md:mt-4">
-                    — Marion &amp; Karim
+                    — Mariam Nassar
                   </p>
                 </div>
               </StaggerItem>

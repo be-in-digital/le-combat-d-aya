@@ -36,7 +36,7 @@ const CAMPAIGN_IMAGE =
   "https://static.wixstatic.com/media/26a6fa_b288a16560794a2a9e6cf5122dd22d69~mv2.jpg/v1/fill/w_780,h_1124,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/WhatsApp%20Image%202025-07-12%20%C3%A0%2014_30_08_ba15ba8b.jpg";
 
 const STATS = [
-  { value: "45k€", label: "Fonds récoltés", caption: "depuis 2023" },
+  { value: "45k€", label: "Fonds récoltés", caption: "depuis 2019" },
   { value: "1 247", label: "Donateurs", caption: "et donatrices" },
   { value: "15", label: "Partenaires", caption: "engagés" },
   { value: "850", label: "Vies impactées", caption: "à ce jour" },
@@ -506,7 +506,7 @@ function FounderNote() {
                   chose.&rdquo;
                 </p>
                 <p>
-                  Le Combat d&apos;Alya est né en 2023 d&apos;un besoin urgent
+                  Le Combat d&apos;Alya est né en 2019 d&apos;un besoin urgent
                   de financer les soins de notre fille. Mais très vite, nous
                   avons compris que d&apos;autres familles vivaient le même
                   isolement, la même incertitude.
@@ -521,11 +521,11 @@ function FounderNote() {
             <StaggerItem>
               <div className="mt-10 md:mt-12 flex items-center gap-4 md:gap-6 flex-wrap">
                 <div className="font-serif italic text-2xl md:text-3xl text-primary">
-                  — Marion &amp; Karim
+                  — Mariam Nassar
                 </div>
                 <div className="flex-1 h-px bg-outline-variant/40 min-w-[40px]" />
                 <span className="text-xs uppercase tracking-[0.3em] text-on-surface-variant">
-                  Fondateurs
+                  Fondatrice
                 </span>
               </div>
             </StaggerItem>
@@ -562,15 +562,15 @@ function daysRemaining(deadline: string | null | undefined): number | null {
 
 function FeaturedCampaign({ campaign }: { campaign: CampaignDoc | null }) {
   const fallback = {
-    title: "Un nouveau fauteuil multisensoriel pour Alya",
+    title: "Cytotron : un second protocole médical pour Alya",
     description:
-      "Aidez-nous à offrir à Alya l'autonomie qu'elle mérite. Ce fauteuil permettra une stimulation cognitive sans précédent.",
+      "Après un premier protocole financé au Mexique en décembre 2025, aidez-nous à offrir à Alya un second traitement par Cytotron.",
     goal: 20000,
     raised: 12450,
     supporters: 847,
     daysLeft: 45,
     image: CAMPAIGN_IMAGE,
-    coverAlt: "Campagne fauteuil multisensoriel",
+    coverAlt: "Campagne Cytotron pour Alya",
     helloAssoUrl: "/aider",
   };
 

@@ -97,10 +97,10 @@ const MISSIONS = [
     tagline:
       "Accès aux technologies d'assistance qui transforment le quotidien.",
     description:
-      "Fauteuils multisensoriels, logiciels d'aide à la communication, dispositifs de mobilité : nous finançons les équipements de pointe qui repoussent les limites du possible et redonnent de l'autonomie à chacun.",
+      "Matériel médical, véhicules adaptés et dispositifs de mobilité : nous finançons les équipements de pointe qui repoussent les limites du possible et redonnent de l'autonomie à chacun.",
     programs: [
-      "Fauteuil multisensoriel (campagne en cours)",
-      "Tablettes de communication AAC",
+      "Véhicule adapté (PMR)",
+      "Matériel médical pour Alya",
       "Aménagement de domicile",
       "Aides à la mobilité personnalisées",
     ],

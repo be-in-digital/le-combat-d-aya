@@ -26,8 +26,8 @@ export const ORG = {
   address: "15 rue de la Solidarité, 75011 Paris",
   city: "Paris",
   country: "France",
-  founded: "2023",
+  founded: "2019",
   rna: "W751234567",
   siret: "—",
-  publicationDirector: "Marion Lefèvre",
+  publicationDirector: "Mariam Nassar",
 } as const;

@@ -28,11 +28,11 @@ const CAMPAIGN_IMAGE =
 
 const FALLBACK_FEATURED: FeaturedArticle = {
   _id: "fallback-featured",
-  slug: "fauteuil-multisensoriel-alya",
-  title: "Le fauteuil multisensoriel d'Alya : à 62 % de l'objectif",
+  slug: "campagne-cytotron-mexique",
+  title: "Cytotron : objectif un second protocole médical au Mexique",
   category: "Campagne",
   excerpt:
-    "En trois mois, 847 contributrices et contributeurs ont permis de réunir 12 450 € sur les 20 000 € nécessaires. Retour sur cette mobilisation hors norme — et ce qui reste à accomplir avant l'été.",
+    "Après un premier protocole financé au Mexique en décembre 2025, la nouvelle campagne vise un second traitement par Cytotron pour Alya. Retour sur la mobilisation en cours — et ce qui reste à réunir.",
   publishedAt: "2026-05-12",
   readingTime: 6,
   cover: { url: CAMPAIGN_IMAGE },
