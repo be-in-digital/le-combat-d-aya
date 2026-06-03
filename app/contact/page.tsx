@@ -5,13 +5,28 @@ import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { PageHero } from "@/components/page-hero";
 import { FadeUp, Stagger, StaggerItem } from "@/components/anim";
+import { buildMetadata } from "@/lib/seo";
+import { sanityFetch } from "@/sanity/fetch";
+import { contactPageQuery } from "@/sanity/queries";
+import type { ContactPage } from "@/sanity/types";
 import { ContactForm } from "./contact-form";
 
-export const metadata: Metadata = {
-  title: "Contact · Le Combat d'Alya",
-  description:
-    "Une question, une proposition, un partenariat ? Notre équipe vous répond.",
-};
+const FALLBACK_DESCRIPTION =
+  "Une question, une proposition, un partenariat ? Notre équipe vous répond.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await sanityFetch<ContactPage | null>({
+    query: contactPageQuery,
+    tags: ["contactPage"],
+  });
+
+  return buildMetadata({
+    seo: page?.seo,
+    title: page?.hero?.title ?? "Contact",
+    description: page?.hero?.intro ?? FALLBACK_DESCRIPTION,
+    path: "/contact",
+  });
+}
 
 const CONTACT_BLOCKS = [
   {
@@ -40,7 +55,75 @@ const CONTACT_BLOCKS = [
   },
 ];
 
-export default function ContactPage() {
+const QUICK_LINKS: {
+  icon: string | null;
+  title: string | null;
+  text: string | null;
+  href: string | null;
+}[] = [
+  {
+    icon: "favorite",
+    title: "Faire un don",
+    text: "En ligne, en quelques clics, paiement sécurisé.",
+    href: "/aider",
+  },
+  {
+    icon: "help",
+    title: "Questions fréquentes",
+    text: "Les réponses aux questions les plus courantes.",
+    href: "/#faq",
+  },
+  {
+    icon: "auto_stories",
+    title: "Notre histoire",
+    text: "Découvrir comment l'association est née.",
+    href: "/histoire",
+  },
+];
+
+const SOCIAL_LINKS = [
+  { platform: "Instagram", url: "#", label: "Instagram" },
+  { platform: "LinkedIn", url: "#", label: "LinkedIn" },
+  { platform: "Podcast", url: "#", label: "Podcast" },
+  { platform: "Newsletter", url: "#", label: "Newsletter" },
+];
+
+/** Maps a social platform name to its Material Symbols icon (existing markup). */
+function socialIcon(platform?: string | null): string {
+  switch (platform?.toLowerCase()) {
+    case "instagram":
+      return "public";
+    case "linkedin":
+      return "share";
+    case "podcast":
+      return "podcasts";
+    case "newsletter":
+      return "mail";
+    default:
+      return "public";
+  }
+}
+
+export default async function ContactPage() {
+  const page = await sanityFetch<ContactPage | null>({
+    query: contactPageQuery,
+    tags: ["contactPage"],
+  });
+
+  const channels = page?.channels?.length ? page.channels : CONTACT_BLOCKS;
+  const quickLinks = page?.quickLinks?.length
+    ? page.quickLinks.map((q) => ({
+        icon: q.icon,
+        title: q.label,
+        text: null as string | null,
+        href: q.href,
+      }))
+    : QUICK_LINKS;
+  const socialLinks = page?.socialLinks?.length
+    ? page.socialLinks
+    : SOCIAL_LINKS;
+  const hero = page?.hero;
+
   return (
     <>
       <Nav />
@@ -50,15 +133,30 @@ export default function ContactPage() {
             { label: "Accueil", href: "/" },
             { label: "Contact" },
           ]}
-          eyebrow="Parlons-en"
+          eyebrow={hero?.eyebrow ?? "Parlons-en"}
           title={
-            <>
-              Une question,
-              <br />
-              une <span className="italic">conversation</span>.
-            </>
+            hero?.title ? (
+              <>
+                {hero.title}
+                {hero.titleAccent ? (
+                  <>
+                    {" "}
+                    <span className="italic">{hero.titleAccent}</span>
+                  </>
+                ) : null}
+              </>
+            ) : (
+              <>
+                Une question,
+                <br />
+                une <span className="italic">conversation</span>.
+              </>
+            )
           }
-          intro="Nous lisons chaque message. Que vous soyez donateur, bénévole, parent ou partenaire potentiel, notre équipe vous répond avec attention."
+          intro={
+            hero?.intro ??
+            "Nous lisons chaque message. Que vous soyez donateur, bénévole, parent ou partenaire potentiel, notre équipe vous répond avec attention."
+          }
         />
 
         {/* Form + sidebar */}
@@ -94,13 +192,13 @@ export default function ContactPage() {
                   Selon votre <span className="italic">besoin</span>.
                 </h3>
                 <ul className="space-y-5 md:space-y-6">
-                  {CONTACT_BLOCKS.map((c) => (
+                  {channels.map((c, i) => (
                     <li
-                      key={c.title}
+                      key={c.title ?? i}
                       className="flex items-start gap-4 pb-5 md:pb-6 border-b border-outline-variant/30 last:border-0 last:pb-0"
                     >
                       <div className="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-secondary-fixed text-secondary flex items-center justify-center flex-shrink-0">
-                        <Icon name={c.icon} filled className="text-lg md:text-xl" />
+                        <Icon name={c.icon ?? "mail"} filled className="text-lg md:text-xl" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[11px] uppercase tracking-[0.25em] text-on-surface-variant font-semibold mb-1">
@@ -166,19 +264,14 @@ export default function ContactPage() {
                   Suivre l&apos;association
                 </h3>
                 <div className="flex gap-3">
-                  {[
-                    { icon: "public", label: "Instagram" },
-                    { icon: "share", label: "LinkedIn" },
-                    { icon: "podcasts", label: "Podcast" },
-                    { icon: "mail", label: "Newsletter" },
-                  ].map(({ icon, label }) => (
+                  {socialLinks.map((s, i) => (
                     <a
-                      key={label}
-                      href="#"
+                      key={s.label ?? s.platform ?? i}
+                      href={s.url || "#"}
                       className="w-11 h-11 rounded-full border border-outline-variant/40 flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary hover:border-primary transition-all"
-                      aria-label={label}
+                      aria-label={s.label ?? s.platform}
                     >
-                      <Icon name={icon} className="text-lg" />
+                      <Icon name={socialIcon(s.platform)} className="text-lg" />
                     </a>
                   ))}
                 </div>
@@ -202,40 +295,23 @@ export default function ContactPage() {
               staggerDelay={0.1}
               className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6"
             >
-              {[
-                {
-                  icon: "favorite",
-                  title: "Faire un don",
-                  text: "En ligne, en quelques clics, paiement sécurisé.",
-                  href: "/aider",
-                },
-                {
-                  icon: "help",
-                  title: "Questions fréquentes",
-                  text: "Les réponses aux questions les plus courantes.",
-                  href: "/#faq",
-                },
-                {
-                  icon: "auto_stories",
-                  title: "Notre histoire",
-                  text: "Découvrir comment l'association est née.",
-                  href: "/histoire",
-                },
-              ].map((q) => (
-                <StaggerItem key={q.title}>
+              {quickLinks.map((q, i) => (
+                <StaggerItem key={q.title ?? i}>
                   <Link
-                    href={q.href}
+                    href={q.href ?? "#"}
                     className="group bg-surface-container-lowest rounded-[1.5rem] md:rounded-[2rem] p-7 md:p-8 transition-all hover:-translate-y-1 block h-full"
                   >
                   <div className="w-12 h-12 rounded-2xl bg-secondary-fixed text-secondary flex items-center justify-center mb-5">
-                    <Icon name={q.icon} filled />
+                    <Icon name={q.icon ?? "arrow_forward"} filled />
                   </div>
                   <h3 className="font-serif text-primary text-xl md:text-2xl mb-3">
                     {q.title}
                   </h3>
-                  <p className="text-on-surface-variant text-sm md:text-base leading-relaxed mb-5">
-                    {q.text}
-                  </p>
+                  {q.text ? (
+                    <p className="text-on-surface-variant text-sm md:text-base leading-relaxed mb-5">
+                      {q.text}
+                    </p>
+                  ) : null}
                     <div className="flex items-center gap-2 text-secondary font-semibold text-xs uppercase tracking-widest">
                       Continuer
                       <Icon

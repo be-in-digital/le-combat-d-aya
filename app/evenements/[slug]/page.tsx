@@ -7,8 +7,10 @@ import { Footer } from "@/components/footer";
 import { PageHero } from "@/components/page-hero";
 import { FadeUp } from "@/components/anim";
 import { ArticleCover } from "@/components/article-cover";
+import { VideoPlayer } from "@/components/video-player";
 import { BreadcrumbJsonLd } from "@/components/json-ld";
 import { SITE_URL } from "@/lib/site";
+import { buildMetadata } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/fetch";
 import { eventBySlugQuery, eventSlugsQuery } from "@/sanity/queries";
 import type { EventDoc } from "@/sanity/types";
@@ -38,15 +40,18 @@ export async function generateMetadata({
 
   if (!event) return { title: "Événement introuvable · Le Combat d'Alya" };
 
-  return {
-    title: `${event.title} · Le Combat d'Alya`,
-    description: event.description ?? undefined,
-    openGraph: {
-      title: event.title,
-      description: event.description ?? undefined,
-      images: event.cover?.url ? [event.cover.url] : undefined,
-    },
-  };
+  return buildMetadata({
+    seo: event.seo,
+    title: event.title,
+    description: event.description,
+    path: `/evenements/${event.slug}`,
+    // Fall back to the cover image for sharing when no dedicated OG image set.
+    ...(event.seo?.ogImage?.url
+      ? {}
+      : event.cover?.url
+        ? { seo: { ...event.seo, ogImage: { url: event.cover.url, alt: event.title } } }
+        : {}),
+  });
 }
 
 export default async function EventPage({
@@ -123,7 +128,7 @@ export default async function EventPage({
         <section className="px-6 md:px-10 pb-16 md:pb-24">
           <FadeUp className="max-w-screen-xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-              <div className="lg:col-span-7">
+              <div className="lg:col-span-7 space-y-6 md:space-y-8">
                 {event.cover?.url && (
                   <div className="relative aspect-[16/9] overflow-hidden rounded-[2rem] md:rounded-[3rem]">
                     <ArticleCover
@@ -134,6 +139,7 @@ export default async function EventPage({
                     />
                   </div>
                 )}
+                {event.video && <VideoPlayer video={event.video} />}
               </div>
 
               <aside className="lg:col-span-5 lg:sticky lg:top-28 lg:self-start space-y-6">

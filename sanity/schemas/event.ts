@@ -54,6 +54,11 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "video",
+      title: "Vidéo (teaser / aftermovie)",
+      type: "videoEmbed",
+    }),
+    defineField({
       name: "registrationUrl",
       title: "URL d'inscription",
       type: "url",
@@ -63,6 +68,11 @@ export default defineType({
       title: "À la une",
       type: "boolean",
       initialValue: false,
+    }),
+    defineField({
+      name: "seo",
+      title: "SEO & partage",
+      type: "seo",
     }),
   ],
   orderings: [

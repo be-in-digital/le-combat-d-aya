@@ -19,6 +19,16 @@ export default defineType({
       validation: (r) => r.required(),
     }),
     defineField({
+      name: "eyebrow",
+      title: "Sur-titre",
+      type: "string",
+    }),
+    defineField({
+      name: "italicWord",
+      title: "Mot en italique (dans le titre)",
+      type: "string",
+    }),
+    defineField({
       name: "tagline",
       title: "Sous-titre",
       type: "string",
@@ -31,10 +41,46 @@ export default defineType({
       validation: (r) => r.max(400),
     }),
     defineField({
+      name: "description",
+      title: "Description longue",
+      type: "text",
+      rows: 5,
+    }),
+    defineField({
+      name: "programs",
+      title: "Programmes",
+      type: "array",
+      of: [{ type: "string" }],
+    }),
+    defineField({
+      name: "stats",
+      title: "Chiffres",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({ name: "value", title: "Valeur", type: "string" }),
+            defineField({ name: "label", title: "Libellé", type: "string" }),
+          ],
+          preview: { select: { title: "value", subtitle: "label" } },
+        },
+      ],
+    }),
+    defineField({
+      name: "cover",
+      title: "Image",
+      type: "figure",
+    }),
+    defineField({
+      name: "video",
+      title: "Vidéo",
+      type: "videoEmbed",
+    }),
+    defineField({
       name: "details",
       title: "Détails",
-      type: "array",
-      of: [{ type: "block" }],
+      type: "blockContent",
     }),
     defineField({
       name: "order",

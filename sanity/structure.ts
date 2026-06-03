@@ -1,20 +1,38 @@
 import type { StructureResolver } from "sanity/structure";
 
-const SINGLETONS = ["siteSettings"];
+/** Document types that should exist only once (edited as a single document). */
+const SINGLETONS: { id: string; title: string; icon?: string }[] = [
+  { id: "siteSettings", title: "Paramètres du site" },
+  { id: "homePage", title: "Accueil" },
+  { id: "storyPage", title: "Notre histoire" },
+  { id: "missionsPage", title: "Page Missions" },
+  { id: "helpPage", title: "Comment aider" },
+  { id: "contactPage", title: "Contact" },
+  { id: "newsPage", title: "Page Actualités" },
+  { id: "eventsPage", title: "Page Événements" },
+];
 
 export const structure: StructureResolver = (S) =>
   S.list()
     .title("Le Combat d'Alya")
     .items([
       S.listItem()
-        .title("Paramètres du site")
-        .id("siteSettings")
+        .title("Pages")
         .child(
-          S.editor()
-            .id("siteSettings")
-            .schemaType("siteSettings")
-            .documentId("siteSettings"),
+          S.list()
+            .title("Pages")
+            .items(
+              SINGLETONS.map((s) =>
+                S.listItem()
+                  .title(s.title)
+                  .id(s.id)
+                  .child(
+                    S.editor().id(s.id).schemaType(s.id).documentId(s.id),
+                  ),
+              ),
+            ),
         ),
+      S.documentTypeListItem("legalPage").title("Pages légales"),
       S.divider(),
       S.documentTypeListItem("article").title("Articles"),
       S.documentTypeListItem("campaign").title("Campagnes"),
@@ -37,4 +55,4 @@ export const structure: StructureResolver = (S) =>
     ]);
 
 export const singletonActions = new Set(["publish", "discardChanges", "restore"]);
-export const singletonTypes = new Set(SINGLETONS);
+export const singletonTypes = new Set(SINGLETONS.map((s) => s.id));

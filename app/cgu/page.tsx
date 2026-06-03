@@ -5,15 +5,79 @@ import { Footer } from "@/components/footer";
 import { PageHero } from "@/components/page-hero";
 import { LegalLayout, LegalSection } from "@/components/legal-layout";
 import { ORG } from "@/components/site-data";
+import { sanityFetch } from "@/sanity/fetch";
+import { legalPageBySlugQuery } from "@/sanity/queries";
+import type { LegalPage } from "@/sanity/types";
+import { buildMetadata } from "@/lib/seo";
+import { PortableProse } from "@/components/portable-text";
 
-export const metadata: Metadata = {
-  title: "Conditions générales d'utilisation · Le Combat d'Alya",
-  description:
-    "Conditions générales d'utilisation du site Le Combat d'Alya.",
-  robots: { index: true, follow: false },
-};
+const SLUG = "cgu";
+const FALLBACK_TITLE = "Conditions générales d'utilisation · Le Combat d'Alya";
+const FALLBACK_DESCRIPTION =
+  "Conditions générales d'utilisation du site Le Combat d'Alya.";
 
-export default function CguPage() {
+function getLegalPage() {
+  return sanityFetch<LegalPage | null>({
+    query: legalPageBySlugQuery,
+    params: { slug: SLUG },
+    tags: ["legalPage", `legalPage:${SLUG}`],
+  });
+}
+
+function formatLastUpdated(value?: string | null): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const doc = await getLegalPage();
+  return {
+    ...buildMetadata({
+      seo: doc?.seo,
+      title: doc?.title ?? FALLBACK_TITLE,
+      description: doc?.intro ?? FALLBACK_DESCRIPTION,
+      path: `/${SLUG}`,
+    }),
+    robots: { index: true, follow: false },
+  };
+}
+
+export default async function CguPage() {
+  const doc = await getLegalPage();
+
+  if (doc?.body?.length) {
+    const lastUpdated = formatLastUpdated(doc.lastUpdated);
+    return (
+      <>
+        <Nav />
+        <main>
+          <PageHero
+            breadcrumbs={[
+              { label: "Accueil", href: "/" },
+              { label: "CGU" },
+            ]}
+            eyebrow="Conditions générales"
+            title={doc.title}
+            intro={doc.intro ?? undefined}
+            meta={
+              lastUpdated ? `Dernière mise à jour : ${lastUpdated}` : undefined
+            }
+          />
+          <LegalLayout>
+            <PortableProse value={doc.body} />
+          </LegalLayout>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Nav />

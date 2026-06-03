@@ -15,12 +15,27 @@ import {
   isHelloAssoConfigured,
   type RecentDonation,
 } from "@/lib/helloasso";
+import { sanityFetch } from "@/sanity/fetch";
+import { helpPageQuery } from "@/sanity/queries";
+import type { HelpPage } from "@/sanity/types";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Comment aider · Le Combat d'Alya",
-  description:
-    "Faire un don, devenir bénévole, soutenir en nature ou en tant qu'entreprise — toutes les façons de rejoindre le combat.",
-};
+const FALLBACK_DESCRIPTION =
+  "Faire un don, devenir bénévole, soutenir en nature ou en tant qu'entreprise — toutes les façons de rejoindre le combat.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await sanityFetch<HelpPage | null>({
+    query: helpPageQuery,
+    tags: ["helpPage"],
+  });
+
+  return buildMetadata({
+    seo: page?.seo,
+    title: page?.hero?.title ?? "Comment aider",
+    description: page?.hero?.intro ?? FALLBACK_DESCRIPTION,
+    path: "/aider",
+  });
+}
 
 const WAYS = [
   {
@@ -76,6 +91,37 @@ const WAYS = [
     pill: "bg-surface-container-highest text-primary",
   },
 ];
+
+// Style palette cycled by index when mapping Sanity `ways` (which carry only
+// content). Mirrors the styling fields baked into the hardcoded WAYS above.
+const WAY_STYLES = WAYS.map((w) => ({
+  eyebrow: w.eyebrow,
+  italic: w.italic,
+  bg: w.bg,
+  text_color: w.text_color,
+  on_bg: w.on_bg,
+  pill: w.pill,
+}));
+
+function adaptWay(
+  way: NonNullable<HelpPage["ways"]>[number],
+  index: number,
+): (typeof WAYS)[number] {
+  const style = WAY_STYLES[index % WAY_STYLES.length];
+  return {
+    icon: way.icon ?? "favorite",
+    eyebrow: style.eyebrow,
+    title: way.title ?? "",
+    italic: "",
+    text: way.text ?? "",
+    cta: way.ctaLabel ?? "",
+    href: way.ctaHref ?? "#",
+    bg: style.bg,
+    text_color: style.text_color,
+    on_bg: style.on_bg,
+    pill: style.pill,
+  };
+}
 
 const STEPS = [
   {
@@ -214,9 +260,27 @@ function RecentDonations({ donations }: { donations: RecentDonation[] }) {
 }
 
 export default async function AiderPage() {
-  const donations = isHelloAssoConfigured()
-    ? await getRecentDonations({ ...HELLOASSO_GENERAL_FORM, limit: 8 })
-    : [];
+  const [page, donations] = await Promise.all([
+    sanityFetch<HelpPage | null>({
+      query: helpPageQuery,
+      tags: ["helpPage"],
+    }),
+    isHelloAssoConfigured()
+      ? getRecentDonations({ ...HELLOASSO_GENERAL_FORM, limit: 8 })
+      : Promise.resolve([] as RecentDonation[]),
+  ]);
+
+  const hero = page?.hero;
+  const stepsHeading = page?.stepsHeading;
+  const taxSection = page?.taxSection;
+  const ways = page?.ways?.length ? page.ways.map(adaptWay) : WAYS;
+  const steps = page?.steps?.length
+    ? page.steps.map((s, idx) => ({
+        step: s.number ?? String(idx + 1).padStart(2, "0"),
+        title: s.title ?? "",
+        text: s.text ?? "",
+      }))
+    : STEPS;
 
   return (
     <>
@@ -227,15 +291,30 @@ export default async function AiderPage() {
             { label: "Accueil", href: "/" },
             { label: "Comment aider" },
           ]}
-          eyebrow="Rejoindre le combat"
+          eyebrow={hero?.eyebrow ?? "Rejoindre le combat"}
           title={
-            <>
-              Plus d&apos;une façon
-              <br />
-              de <span className="italic">soutenir Alya</span>.
-            </>
+            hero?.title ? (
+              <>
+                {hero.title}
+                {hero.titleAccent && (
+                  <>
+                    {" "}
+                    <span className="italic">{hero.titleAccent}</span>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                Plus d&apos;une façon
+                <br />
+                de <span className="italic">soutenir Alya</span>.
+              </>
+            )
           }
-          intro="Don, bénévolat, soutien matériel, mécénat d'entreprise : chaque forme de soutien compte. Choisissez la façon qui vous ressemble."
+          intro={
+            hero?.intro ??
+            "Don, bénévolat, soutien matériel, mécénat d'entreprise : chaque forme de soutien compte. Choisissez la façon qui vous ressemble."
+          }
         />
 
         {/* HelloAsso donation widget */}
@@ -343,7 +422,7 @@ export default async function AiderPage() {
               staggerDelay={0.1}
               className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8"
             >
-              {WAYS.map((w) => (
+              {ways.map((w) => (
                 <StaggerItem
                   key={w.title}
                   className={`relative ${w.bg} rounded-[2rem] md:rounded-[2.5rem] p-8 md:p-12 flex flex-col overflow-hidden transition-all hover:-translate-y-1`}
@@ -391,10 +470,14 @@ export default async function AiderPage() {
           <div className="max-w-screen-2xl mx-auto">
             <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
               <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-4">
-                Comment ça marche
+                {stepsHeading?.eyebrow ?? "Comment ça marche"}
               </p>
               <h2 className="font-serif text-primary text-4xl md:text-6xl leading-[1.02]">
-                <span className="italic">Trois étapes</span>, zéro mystère.
+                {stepsHeading?.title ?? (
+                  <>
+                    <span className="italic">Trois étapes</span>, zéro mystère.
+                  </>
+                )}
               </h2>
             </div>
 
@@ -403,7 +486,7 @@ export default async function AiderPage() {
               className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 relative"
             >
               <div className="hidden md:block absolute top-12 left-[16.6%] right-[16.6%] h-px bg-outline-variant/40 -z-10" />
-              {STEPS.map((s) => (
+              {steps.map((s) => (
                 <StaggerItem key={s.step} className="text-center">
                   <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-surface-container-lowest border-4 border-surface-container-low mx-auto mb-6 flex items-center justify-center">
                     <span className="font-serif italic text-secondary text-3xl md:text-4xl">
@@ -433,17 +516,20 @@ export default async function AiderPage() {
                   Avantage fiscal
                 </p>
                 <h2 className="font-serif text-3xl md:text-5xl leading-tight mb-5 md:mb-6">
-                  <span className="italic">66 %</span> de votre don déductible.
+                  {taxSection?.title ?? (
+                    <>
+                      <span className="italic">66 %</span> de votre don
+                      déductible.
+                    </>
+                  )}
                 </h2>
                 <p className="text-on-primary/85 text-base md:text-lg leading-relaxed mb-6 md:mb-8">
-                  Le Combat d&apos;Alya est une association reconnue
-                  d&apos;intérêt général. Vos dons donnent droit à une
-                  réduction d&apos;impôt sur le revenu de 66 %, dans la limite
-                  de 20 % du revenu imposable.
+                  {taxSection?.text ??
+                    "Le Combat d'Alya est une association reconnue d'intérêt général. Vos dons donnent droit à une réduction d'impôt sur le revenu de 66 %, dans la limite de 20 % du revenu imposable."}
                 </p>
                 <p className="text-on-primary/70 text-sm italic font-serif">
-                  Pour les entreprises : 60 % de réduction d&apos;impôt sur les
-                  sociétés.
+                  {taxSection?.note ??
+                    "Pour les entreprises : 60 % de réduction d'impôt sur les sociétés."}
                 </p>
               </div>
               <div className="md:col-span-5">

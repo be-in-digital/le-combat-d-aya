@@ -16,6 +16,15 @@ export default defineType({
       type: "string",
     }),
     defineField({
+      name: "logo",
+      title: "Logo",
+      type: "image",
+      options: { hotspot: false },
+      fields: [
+        defineField({ name: "alt", title: "Texte alternatif", type: "string" }),
+      ],
+    }),
+    defineField({
       name: "rna",
       title: "Numéro RNA",
       type: "string",
@@ -47,14 +56,28 @@ export default defineType({
       type: "string",
     }),
     defineField({
+      name: "socialLinks",
+      title: "Réseaux sociaux",
+      type: "array",
+      of: [{ type: "socialLink" }],
+    }),
+    defineField({
       name: "instagramUrl",
-      title: "Instagram",
+      title: "Instagram (obsolète — utilisez Réseaux sociaux)",
       type: "url",
+      hidden: true,
     }),
     defineField({
       name: "linkedinUrl",
-      title: "LinkedIn",
+      title: "LinkedIn (obsolète — utilisez Réseaux sociaux)",
       type: "url",
+      hidden: true,
+    }),
+    defineField({
+      name: "footerNote",
+      title: "Mention de bas de page",
+      type: "string",
+      description: "Ex. Association reconnue d'intérêt général · 66 % déductible",
     }),
     defineField({
       name: "stats",
@@ -72,6 +95,13 @@ export default defineType({
           },
         },
       ],
+    }),
+    defineField({
+      name: "defaultSeo",
+      title: "SEO par défaut",
+      description:
+        "Titre, description et image de partage utilisés quand une page n'en définit pas.",
+      type: "seo",
     }),
   ],
   preview: {

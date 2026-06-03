@@ -1,5 +1,6 @@
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
+import { presentationTool } from "sanity/presentation";
 import { visionTool } from "@sanity/vision";
 import { schemaTypes } from "./sanity/schemas";
 import { structure, singletonActions, singletonTypes } from "./sanity/structure";
@@ -31,6 +32,13 @@ export default defineConfig({
     },
   },
   plugins: [
+    presentationTool({
+      previewUrl: {
+        previewMode: {
+          enable: "/api/draft-mode/enable",
+        },
+      },
+    }),
     structureTool({ structure }),
     visionTool({ defaultApiVersion: apiVersion }),
   ],
