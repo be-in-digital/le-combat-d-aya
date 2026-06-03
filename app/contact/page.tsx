@@ -30,7 +30,7 @@ const CONTACT_BLOCKS = [
     icon: "domain",
     title: "Mécénat entreprise",
     primary: "mecenat@lecombatdalya.fr",
-    secondary: "Marion, responsable mécénat",
+    secondary: "Mariam Nassar, fondatrice",
   },
   {
     icon: "podcasts",

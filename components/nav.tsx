@@ -54,7 +54,7 @@ export function Nav() {
                 Le Combat d&apos;Alya
               </span>
               <span className="hidden md:block text-[10px] uppercase tracking-[0.3em] text-on-surface-variant mt-1">
-                Association · Depuis 2023
+                Association · Depuis 2019
               </span>
             </span>
           </Link>
