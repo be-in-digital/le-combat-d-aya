@@ -54,7 +54,7 @@ const TIMELINE = [
   {
     year: "2019‑25",
     title: "Des soins sans frontières",
-    text: "Rééducation intensive en Espagne jusqu'à trois fois par an, matériel médical pour Alya, financement d'un véhicule adapté (PMR), et envoi de matériel médical à l'étranger pour des enfants lourdement handicapés.",
+    text: "Rééducation intensive en Espagne au centre Aléas — d'abord à Barcelone, aujourd'hui à Blanes —, jusqu'à trois fois par an. Matériel médical pour Alya, financement d'un véhicule adapté (PMR), et envoi de matériel médical à l'étranger pour des enfants lourdement handicapés.",
   },
   {
     year: "2025",

@@ -62,10 +62,10 @@ const FALLBACK_ARTICLES: ArticleCard[] = [
   {
     _id: "fallback-1",
     slug: "barcelone-trois-familles",
-    title: "Barcelone : trois familles partent en rééducation cet été",
+    title: "Espagne : trois familles partent en rééducation cet été",
     category: "Programme",
     excerpt:
-      "Grâce au partenariat avec la clinique Vall d'Hebron, trois enfants accédéront à un protocole de neurorééducation inédit.",
+      "Grâce au centre Aléas (Blanes, Espagne), trois enfants accèdent à un protocole de neurorééducation intensive.",
     publishedAt: "2026-04-28",
     cover: { url: HERO_IMAGE },
   },
