@@ -45,7 +45,7 @@ const MISSIONS = [
     description:
       "Nous prenons en charge les protocoles innovants, les thérapies de pointe et les programmes de rééducation à l'international. Notre rôle : permettre à Alya — et aux familles que nous accompagnons — d'accéder aux soins que la couverture publique ne couvre pas encore.",
     programs: [
-      "Programme de rééducation neuromotrice (Barcelone)",
+      "Rééducation neuromotrice — centre Aléas (Blanes, Espagne)",
       "Thérapies par stimulation sensorielle",
       "Suivi médical pluridisciplinaire",
       "Bourses de soins pour familles bénéficiaires",
