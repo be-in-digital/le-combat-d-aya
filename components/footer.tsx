@@ -97,10 +97,10 @@ export function Footer() {
             <p>75011 Paris, France</p>
             <p className="pt-3">
               <a
-                href="mailto:contact@lecombatdalya.fr"
+                href="mailto:contact@lecombatdalya.org"
                 className="hover:text-primary-fixed-dim transition-colors underline underline-offset-4 decoration-on-primary/30 break-words"
               >
-                contact@lecombatdalya.fr
+                contact@lecombatdalya.org
               </a>
             </p>
           </address>
