@@ -99,7 +99,7 @@ export default async function OG() {
             textTransform: "uppercase",
           }}
         >
-          <span>lecombatdalya.fr</span>
+          <span>lecombatdalya.org</span>
           <span style={{ color: "#b8004b", fontWeight: 700 }}>
             Faire un don
           </span>

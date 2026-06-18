@@ -80,7 +80,7 @@ export function buildIcs({
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    `UID:${id}@lecombatdalya.fr`,
+    `UID:${id}@lecombatdalya.org`,
     `DTSTAMP:${toIcsDate(new Date().toISOString())}`,
     `DTSTART:${toIcsDate(startsAt)}`,
     `DTEND:${toIcsDate(dtEnd)}`,
