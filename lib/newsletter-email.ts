@@ -81,7 +81,7 @@ export function buildNewsletterEmail({
                 </p>
                 <p style="font-size:12px;color:#7a6a6c;margin:0;line-height:1.6;">
                   <a href="${unsubscribeUrl}" style="color:#b8004b;text-decoration:underline;">Se désinscrire</a>
-                  · <a href="https://lecombatdalya.fr" style="color:#b8004b;text-decoration:underline;">Visiter le site</a>
+                  · <a href="https://lecombatdalya.org" style="color:#b8004b;text-decoration:underline;">Visiter le site</a>
                 </p>
               </td>
             </tr>

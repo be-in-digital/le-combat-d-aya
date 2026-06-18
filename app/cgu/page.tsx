@@ -97,7 +97,7 @@ export default async function CguPage() {
             <>
               Les présentes conditions régissent l&apos;utilisation du site{" "}
               <span className="font-serif italic text-on-surface">
-                lecombatdalya.fr
+                lecombatdalya.org
               </span>{" "}
               édité par l&apos;association {ORG.name}.
             </>
@@ -108,7 +108,7 @@ export default async function CguPage() {
         <LegalLayout>
           <LegalSection title="Objet" id="objet">
             <p>
-              Le site lecombatdalya.fr a pour objet de présenter
+              Le site lecombatdalya.org a pour objet de présenter
               l&apos;association {ORG.name}, ses missions, ses campagnes en
               cours et de permettre la collecte de dons via la plateforme
               partenaire HelloAsso.

@@ -29,7 +29,7 @@ type Issue = {
 type Subscriber = { _id: string; email: string };
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://lecombatdalya.fr";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://lecombatdalya.org";
 
 function chunk<T>(arr: T[], size: number): T[][] {
   const out: T[][] = [];

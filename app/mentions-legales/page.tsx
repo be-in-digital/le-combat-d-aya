@@ -187,7 +187,7 @@ export default async function MentionsLegalesPage() {
               sites externes et ne peut être tenu responsable de leur contenu.
             </p>
             <p>
-              La création de liens vers le site lecombatdalya.fr est
+              La création de liens vers le site lecombatdalya.org est
               autorisée, à condition qu&apos;ils ne portent pas atteinte aux
               intérêts de l&apos;association et qu&apos;ils précisent la
               source.

@@ -1,5 +1,5 @@
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://lecombatdalya.fr";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://lecombatdalya.org";
 
 export const SITE_NAME = "Le Combat d'Alya";
 export const SITE_TAGLINE = "Ensemble pour Alya";
