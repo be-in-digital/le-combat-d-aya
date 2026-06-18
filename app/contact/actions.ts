@@ -117,7 +117,7 @@ ${message}`;
       Sentry.captureException(error, { tags: { feature: "contact-form" } });
       return {
         status: "error",
-        message: "L'envoi a échoué. Réessayez ou écrivez-nous directement à contact@lecombatdalya.fr.",
+        message: "L'envoi a échoué. Réessayez ou écrivez-nous directement à contact@lecombatdalya.org.",
       };
     }
 

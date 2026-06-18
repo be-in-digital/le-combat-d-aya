@@ -32,25 +32,25 @@ const CONTACT_BLOCKS = [
   {
     icon: "mail",
     title: "Email général",
-    primary: "contact@lecombatdalya.fr",
+    primary: "contact@lecombatdalya.org",
     secondary: "Réponse sous 48 h ouvrées",
   },
   {
     icon: "favorite",
     title: "Service donateurs",
-    primary: "dons@lecombatdalya.fr",
+    primary: "contact@lecombatdalya.org",
     secondary: "Reçus fiscaux, dons mensuels",
   },
   {
     icon: "domain",
     title: "Mécénat entreprise",
-    primary: "mecenat@lecombatdalya.fr",
+    primary: "contact@lecombatdalya.org",
     secondary: "Mariam Nassar, fondatrice",
   },
   {
     icon: "podcasts",
     title: "Presse",
-    primary: "presse@lecombatdalya.fr",
+    primary: "contact@lecombatdalya.org",
     secondary: "Dossier de presse sur demande",
   },
 ];

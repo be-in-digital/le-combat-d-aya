@@ -20,7 +20,7 @@ export function OrganizationJsonLd() {
         url: SITE_URL,
         logo: `${SITE_URL}/opengraph-image`,
         description: SITE_DESCRIPTION,
-        email: "contact@lecombatdalya.fr",
+        email: "contact@lecombatdalya.org",
         address: {
           "@type": "PostalAddress",
           streetAddress: "15 rue de la Solidarité",

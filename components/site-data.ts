@@ -22,7 +22,7 @@ export const HELLOASSO_GENERAL_FORM = {
 
 export const ORG = {
   name: "Le Combat d'Alya",
-  email: "contact@lecombatdalya.fr",
+  email: "contact@lecombatdalya.org",
   address: "15 rue de la Solidarité, 75011 Paris",
   city: "Paris",
   country: "France",
